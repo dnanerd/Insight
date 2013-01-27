@@ -1,0 +1,440 @@
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.16666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.16666666666666666}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'sour cream', u'flour', u'eggs', u'banana', u'baking powder', u'sugar', u'stick butter', u'baking soda']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-The-Pioneer-Woman-Cooks-_-Ree-Drummond-41325-1551.s.jpg', u'http://i.yummly.com/Banana-Bread-The-Pioneer-Woman-Cooks-_-Ree-Drummond-41325-1238.s.jpg', u'http://i.yummly.com/Banana-Bread-The-Pioneer-Woman-Cooks-_-Ree-Drummond-41325-181.s.jpg']
+sourceDisplayName	The Pioneer Woman
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks']}
+id	Banana-Bread-The-Pioneer-Woman-Cooks-_-Ree-Drummond-41325
+
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.5}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'large eggs', u'bananas', u'unsalted butter', u'baking soda', u'all purpose flour', u'sugar', u'baking powder', u'fresh lemon juice', u'vanilla extract', u'salt']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Once-Upon-A-Chef-199983-39820.s.png']
+sourceDisplayName	Once Upon A Chef
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks'], u'cuisine': [u'American', u'English']}
+id	Banana-Bread-Once-Upon-A-Chef-199983
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.54
+totalTimeInSeconds	4500.0
+ingredients	[u'margarine', u'all-purpose flour', u'baking soda', u'white sugar', u'eggs', u'mashed banana']
+smallImageUrls	[u'http://i2.yummly.com/The-Best-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/The-Best-Banana-Bread-Allrecipes-62526.s.png']
+sourceDisplayName	AllRecipes
+recipeName	The Best Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch']}
+id	The-Best-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.3333333333333333, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.5}
+rating	4.65
+totalTimeInSeconds	4500.0
+ingredients	[u'all-purpose flour', u'melted butter', u'mashed bananas', u'baking soda', u'beaten eggs', u'white sugar', u'salt']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-I-Allrecipes-71405.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread I
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-I-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.5, u'piquant': 0.0, u'bitter': 1.0, u'meaty': 0.5}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'baking soda', u'vanilla', u'sour cream', u'all-purpose flour', u'large eggs', u'granulated sugar', u'cocoa powder', u'semi sweet chocolate chips', u'unsalted butter', u'bananas', u'salt']
+smallImageUrls	[u'http://i.yummly.com/Chocolate-Banana-Bread-Once-Upon-A-Chef-199944-39788.s.png']
+sourceDisplayName	Once Upon A Chef
+recipeName	Chocolate Banana Bread
+attributes	{u'course': [u'Breads', u'Lunch and Snacks']}
+id	Chocolate-Banana-Bread-Once-Upon-A-Chef-199944
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.85
+totalTimeInSeconds	4800.0
+ingredients	[u'all-purpose flour', u'beaten eggs', u'bananas', u'baking soda', u'brown sugar', u'butter', u'salt']
+smallImageUrls	[u'http://i.yummly.com/Banana-Banana-Bread-Allrecipes-74239.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Banana-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.6666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.5, u'meaty': 0.6666666666666666}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'mashed bananas', u'vanilla extract', u'sugar', u'salt', u'all-purpose flour', u'eggs', u'baking powder', u'coconut', u'toasted pecans', u'unsalted butter']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-with-Coconut-and-Pecans-Once-Upon-A-Chef-199956-39773.s.png']
+sourceDisplayName	Once Upon A Chef
+recipeName	Banana Bread with Coconut and Pecans
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-with-Coconut-and-Pecans-Once-Upon-A-Chef-199956
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.61
+totalTimeInSeconds	4500.0
+ingredients	[u'softened butter', u'baking soda', u'salt', u'white sugar', u'all-purpose flour', u'mashed bananas', u'egg']
+smallImageUrls	[u'http://i2.yummly.com/Janine_s-Best-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Janine_s-Best-Banana-Bread-Allrecipes-56120.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Janine's Best Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Janine_s-Best-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.4
+totalTimeInSeconds	3900.0
+ingredients	[u'applesauce', u'ground cinnamon', u'baking powder', u'baking soda', u'mashed banana', u'white sugar', u'all-purpose flour', u'egg whites']
+smallImageUrls	[u'http://i2.yummly.com/Almost-No-Fat-Banana-Bread-Allrecipes.s.jpg', u'http://i.yummly.com/Almost-No-Fat-Banana-Bread-Allrecipes-68485.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Almost No Fat Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Almost-No-Fat-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.62
+totalTimeInSeconds	4200.0
+ingredients	[u'shortening', u'salt', u'bananas', u'white sugar', u'all-purpose flour', u'baking soda']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Viii-Allrecipes-56046.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread VIII
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Viii-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.16666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.5}
+rating	4.63
+totalTimeInSeconds	4800.0
+ingredients	[u'vegetable oil', u'white sugar', u'chopped walnuts', u'mashed bananas', u'baking mix', u'eggs', u'vanilla extract']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Vii-Allrecipes-49660.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread VII
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Vii-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.6666666666666666}
+rating	4.81
+totalTimeInSeconds	4200.0
+ingredients	[u'salt', u'sour cream', u'all-purpose flour', u'white sugar', u'melted butter', u'baking soda', u'eggs', u'chopped walnuts', u'bananas', u'vanilla extract']
+smallImageUrls	[u'http://i2.yummly.com/Janet_s-Rich-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Janet_s-Rich-Banana-Bread-Allrecipes-62616.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Janet's Rich Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Janet_s-Rich-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.5, u'sour': 0.0, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.3333333333333333, u'meaty': 0.16666666666666666}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'chocolate chip', u'baking soda', u'salt', u'baking powder', u'eggs', u'sugar', u'flour', u'banana']
+smallImageUrls	[u'http://i.yummly.com/Banana-and-Chocolate-Chip-Bread-I-Adore-Food-55269-11315.s.png']
+sourceDisplayName	I Adore Food!
+recipeName	Banana and Chocolate Chip Bread
+attributes	{u'course': [u'Breads']}
+id	Banana-and-Chocolate-Chip-Bread-I-Adore-Food-55269
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.3333333333333333, u'meaty': 0.5}
+rating	4.75
+totalTimeInSeconds	3600.0
+ingredients	[u'all-purpose flour', u'baking soda', u'eggs', u'sour cream', u'mashed bananas', u'vanilla extract', u'margarine', u'baking powder', u'salt', u'white sugar']
+smallImageUrls	[u'http://i.yummly.com/Cathy_s-Banana-Bread-Allrecipes-62036.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Cathy's Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Cathy_s-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.0, u'sour': 0.8333333333333334, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.77
+totalTimeInSeconds	3300.0
+ingredients	[u'sugar', u'salt', u'bananas', u'shortening', u'baking soda', u'baking powder', u'all-purpose flour']
+smallImageUrls	[u'http://i2.yummly.com/Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Banana-Bread-Allrecipes-60285.s.png']
+sourceDisplayName	Taste of Home
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Lunch and Snacks'], u'cuisine': [u'American']}
+id	Banana-Bread-TasteOfHome
+
+New Item:
+flavors	{u'sweet': 0.0, u'sour': 0.8333333333333334, u'salty': 0.8333333333333334, u'piquant': 0.0, u'bitter': 0.3333333333333333, u'meaty': 0.8333333333333334}
+rating	4.61
+totalTimeInSeconds	10800.0
+ingredients	[u'vegetable oil', u'bananas', u'eggs', u'baking soda', u'all-purpose flour', u'sugar', u'cinnamon', u'creme fraiche', u'vanilla', u'salt']
+smallImageUrls	[u'http://i2.yummly.com/Banana-Bread-Epicurious.s.png', u'http://i2.yummly.com/Banana-Bread-Epicurious.s.png', u'http://i2.yummly.com/Banana-Bread-Epicurious.s.png']
+sourceDisplayName	Epicurious
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks']}
+id	Banana-Bread-Epicurious
+
+New Item:
+flavors	None
+rating	3.55
+totalTimeInSeconds	0
+ingredients	[u'mashed bananas', u'baking powder', u'margarine', u'vanilla extract', u'wheat flour', u'fructose', u'egg']
+smallImageUrls	[u'http://i2.yummly.com/Banana-Bread-Epicurious_1.s.png']
+sourceDisplayName	Epicurious
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks'], u'cuisine': [u'English']}
+id	Banana-Bread-Epicurious_1
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.5}
+rating	4.69
+totalTimeInSeconds	4200.0
+ingredients	[u'salt', u'margarine', u'milk', u'baking soda', u'all-purpose flour', u'baking powder', u'white sugar', u'mashed bananas', u'chopped walnuts', u'egg']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-V-Allrecipes-55748.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread V
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-V-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.5, u'meaty': 0.5}
+rating	4.76
+totalTimeInSeconds	0
+ingredients	[u'buttermilk', u'baking soda', u'chopped pecans', u'salt', u'all-purpose flour', u'white sugar', u'vegetable oil', u'mashed bananas', u'beaten eggs']
+smallImageUrls	[u'http://i2.yummly.com/Best-Ever-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Best-Ever-Banana-Bread-Allrecipes-58685.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Best Ever Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch']}
+id	Best-Ever-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 1.0, u'meaty': 0.5}
+rating	4.65
+totalTimeInSeconds	4200.0
+ingredients	[u'baking soda', u'unsweetened cocoa powder', u'vanilla extract', u'white sugar', u'margarine', u'all-purpose flour', u'eggs', u'sour cream', u'semisweet chocolate chips', u'mashed bananas']
+smallImageUrls	[u'http://i2.yummly.com/Chocolate-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Chocolate-Banana-Bread-Allrecipes-62753.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Chocolate Banana Bread
+attributes	{u'course': [u'Breads', u'Lunch and Snacks']}
+id	Chocolate-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.6666666666666666, u'meaty': 0.6666666666666666}
+rating	4.67
+totalTimeInSeconds	0
+ingredients	[u'baking soda', u'eggs', u'vanilla extract', u'white sugar', u'all-purpose flour', u'margarine', u'cream cheese', u'baking powder', u'mashed bananas', u'brown sugar', u'ground cinnamon', u'chopped pecans']
+smallImageUrls	[u'http://i2.yummly.com/Creamy-Banana-Bread-Allrecipes.s.png', u'http://i.yummly.com/Creamy-Banana-Bread-Allrecipes-55852.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Creamy Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Creamy-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.74
+totalTimeInSeconds	5400.0
+ingredients	[u'salt', u'vanilla extract', u'shortening', u'white sugar', u'baking soda', u'eggs', u'bananas', u'all-purpose flour']
+smallImageUrls	[u'http://i2.yummly.com/Banana-Bread-Iv-Allrecipes.s.png', u'http://i.yummly.com/Banana-Bread-Iv-Allrecipes-55696.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread IV
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Iv-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 1.0, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.8333333333333334}
+rating	4.78
+totalTimeInSeconds	4200.0
+ingredients	[u'chopped walnuts', u'butter', u'mashed bananas', u'ground cinnamon', u'white sugar', u'all-purpose flour', u'vanilla extract', u'baking soda', u'ground cinnamon', u'white sugar', u'sour cream', u'salt', u'eggs']
+smallImageUrls	[u'http://i.yummly.com/Banana-Sour-Cream-Bread-Allrecipes-62027.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Sour Cream Bread
+attributes	{u'course': [u'Breads'], u'holiday': [u'Christmas']}
+id	Banana-Sour-Cream-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.0, u'salty': 1.0, u'piquant': 0.0, u'bitter': 0.3333333333333333, u'meaty': 0.3333333333333333}
+rating	4.68
+totalTimeInSeconds	0
+ingredients	[u'chocolate chips', u'salt', u'sugar', u'flour', u'baking soda', u'melted butter', u'bananas', u'beaten eggs']
+smallImageUrls	[u'http://i2.yummly.com/Aunt-Holly_s-Banana-Bread-Epicurious-1.s.png']
+sourceDisplayName	Epicurious
+recipeName	Aunt Holly's Banana Bread
+attributes	{u'course': [u'Breads'], u'holiday': [u'Christmas']}
+id	Aunt-Holly_s-Banana-Bread-Epicurious
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.8333333333333334, u'piquant': 0.0, u'bitter': 0.5, u'meaty': 0.8333333333333334}
+rating	4.32
+totalTimeInSeconds	3600.0
+ingredients	[u'eggs', u'mashed bananas', u'cake mix', u'vegetable oil']
+smallImageUrls	[u'http://i.yummly.com/Country-Banana-Bread-Allrecipes-56683.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Country Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Country-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.6666666666666666, u'meaty': 0.5}
+rating	4.58
+totalTimeInSeconds	4500.0
+ingredients	[u'baking powder', u'applesauce', u'vegetable oil', u'mashed bananas', u'vanilla extract', u'eggs', u'white sugar', u'all-purpose flour', u'nonfat milk', u'salt', u'chopped walnuts', u'baking soda']
+smallImageUrls	[u'http://i.yummly.com/Lower-Fat-Banana-Bread-Ii-Allrecipes-53140.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Lower Fat Banana Bread II
+attributes	{u'course': [u'Breads']}
+id	Lower-Fat-Banana-Bread-Ii-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.16666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.16666666666666666}
+rating	0.0
+totalTimeInSeconds	5400.0
+ingredients	[u'plain yogurt', u'large eggs', u'salt', u'walnut', u'all-purpose flour', u'mashed bananas', u'sugar', u'unsalted butter', u'vanilla extract', u'baking soda']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Recipe-Leite_s-Culinaria-40955-8541.s.png', u'http://i.yummly.com/Banana-Bread-Recipe-Leite_s-Culinaria-40955-3596.s.jpg', u'http://i.yummly.com/banana-bread.s.jpg']
+sourceDisplayName	Leite's Culinaria
+recipeName	Banana Bread Recipe
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Recipe-Leite_s-Culinaria-40955
+
+New Item:
+flavors	{u'sweet': 0.3333333333333333, u'sour': 0.16666666666666666, u'salty': 0.8333333333333334, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.6666666666666666}
+rating	4.62
+totalTimeInSeconds	0
+ingredients	[u'sugar', u'flour', u'cinnamon', u'macadamia nuts', u'salt', u'baking soda', u'eggs', u'bananas', u'vegetable shortening']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Food-Network_1-146487.s.jpg']
+sourceDisplayName	Food Network
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks']}
+id	Banana-Bread-Food-Network_1
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.67
+totalTimeInSeconds	4500.0
+ingredients	[u'margarine', u'baking soda', u'baking powder', u'salt', u'all-purpose flour', u'water', u'eggs', u'mashed bananas', u'white sugar']
+smallImageUrls	[u'http://i2.yummly.com/Lower-Fat-Banana-Bread-I-Allrecipes.s.png', u'http://i.yummly.com/Lower-Fat-Banana-Bread-I-Allrecipes-55741.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Lower Fat Banana Bread I
+attributes	{u'course': [u'Breads']}
+id	Lower-Fat-Banana-Bread-I-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.5}
+rating	4.69
+totalTimeInSeconds	4200.0
+ingredients	[u'softened butter', u'sour milk', u'vanilla extract', u'salt', u'baking soda', u'all-purpose flour', u'mashed bananas', u'eggs', u'white sugar']
+smallImageUrls	[u'http://i.yummly.com/Grandma_s-Homemade-Banana-Bread-Allrecipes-62560.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Grandma's Homemade Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Grandma_s-Homemade-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.6666666666666666, u'meaty': 0.5}
+rating	4.79
+totalTimeInSeconds	5400.0
+ingredients	[u'eggs', u'semi-sweet chocolate', u'baking soda', u'shortening', u'salt', u'all-purpose flour', u'white sugar', u'chopped walnuts', u'mashed bananas', u'baking powder', u'mayonnaise']
+smallImageUrls	[u'http://i2.yummly.com/Chocolate-Chip-Banana-Bread-Ii-Allrecipes.s.png', u'http://i.yummly.com/Chocolate-Chip-Banana-Bread-Ii-Allrecipes-74249.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Chocolate Chip Banana Bread II
+attributes	{u'course': [u'Breads']}
+id	Chocolate-Chip-Banana-Bread-Ii-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.5, u'salty': 0.6666666666666666, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.5}
+rating	4.68
+totalTimeInSeconds	5400.0
+ingredients	[u'chopped walnuts', u'white sugar', u'baking soda', u'butter', u'beaten eggs', u'salt', u'all-purpose flour', u'bananas']
+smallImageUrls	[u'http://i.yummly.com/Extreme-Banana-Nut-Bread-_ebnb_-Allrecipes-65547.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Extreme Banana Nut Bread 'EBNB'
+attributes	{u'course': [u'Breads']}
+id	Extreme-Banana-Nut-Bread-_ebnb_-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.5}
+rating	3.9
+totalTimeInSeconds	4800.0
+ingredients	[u'mashed bananas', u'salt', u'chopped walnuts', u'white sugar', u'baking powder', u'all-purpose flour', u'eggs']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Vi-Allrecipes-55738.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread VI
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Vi-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.16666666666666666, u'sour': 0.16666666666666666, u'salty': 0.16666666666666666, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.16666666666666666}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'table salt', u'ground cloves', u'ground cinnamon', u'bananas', u'baking soda', u'maple syrup', u'salt', u'light brown sugar', u'coconut oil', u'whole wheat flour', u'vanilla extract', u'large egg', u'millet', u'grated nutmeg']
+smallImageUrls	[u'http://i.yummly.com/Crackly-banana-bread-305663-270160.s.jpg']
+sourceDisplayName	Smitten Kitchen
+recipeName	Crackly Banana Bread
+attributes	{}
+id	Crackly-banana-bread-305663
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.5}
+rating	4.65
+totalTimeInSeconds	11400.0
+ingredients	[u'all-purpose flour', u'baking powder', u'milk', u'unsalted butter', u'granulated sugar', u'ground cinnamon', u'eggs', u'baking soda', u'salt', u'bananas']
+smallImageUrls	[]
+sourceDisplayName	Food Network
+recipeName	Banana Bread
+attributes	{u'course': [u'Breads', u'Breakfast and Brunch', u'Lunch and Snacks'], u'cuisine': [u'English']}
+id	Banana-Bread-Food-Network_2
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.8333333333333334, u'meaty': 0.5}
+rating	4.43
+totalTimeInSeconds	4500.0
+ingredients	[u'baking powder', u'eggs', u'chopped walnuts', u'mashed banana', u'softened butter', u'white sugar', u'baking soda', u'salt', u'all-purpose flour']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-Ii-Allrecipes-55673.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana Bread II
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-Ii-Allrecipes
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 1.0, u'meaty': 0.6666666666666666}
+rating	4.26
+totalTimeInSeconds	4500.0
+ingredients	[u'ground cinnamon', u'raisins', u'vanilla extract', u'all-purpose flour', u'unsweetened applesauce', u'eggs', u'baking soda', u'chopped walnuts', u'white sugar', u'mashed bananas', u'ground nutmeg']
+smallImageUrls	[u'http://i.yummly.com/Granny_s-Banana-Bread-Allrecipes-74254.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Granny's Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Granny_s-Banana-Bread-Allrecipes
+
+New Item:
+flavors	{u'sweet': 0.8333333333333334, u'sour': 0.5, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.5}
+rating	4.66
+totalTimeInSeconds	4500.0
+ingredients	[u'all-purpose flour', u'large eggs', u'bananas', u'baking soda', u'brown sugar', u'butter', u'salt']
+smallImageUrls	[u'http://i2.yummly.com/Banana-Banana-Bread-Recipezaar.s.png', u'http://i.yummly.com/Banana-Banana-Bread-Recipezaar-179910.s.jpg']
+sourceDisplayName	Food.com
+recipeName	Banana Banana Bread
+attributes	{u'course': [u'Breads']}
+id	Banana-Banana-Bread-Recipezaar
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.5, u'piquant': 0.0, u'bitter': 0.3333333333333333, u'meaty': 0.3333333333333333}
+rating	0.0
+totalTimeInSeconds	0
+ingredients	[u'kosher salt', u'all purpose flour', u'egg', u'sugar', u'baking powder', u'bananas', u'unsalted butter', u'baking soda']
+smallImageUrls	[]
+sourceDisplayName	Food52
+recipeName	Banana Bread
+attributes	{}
+id	Banana-bread-307554
+
+New Item:
+flavors	{u'sweet': 1.0, u'sour': 0.6666666666666666, u'salty': 0.3333333333333333, u'piquant': 0.0, u'bitter': 0.16666666666666666, u'meaty': 0.3333333333333333}
+rating	4.07
+totalTimeInSeconds	0
+ingredients	[u'all-purpose flour', u'eggs', u'bananas', u'baking powder', u'vegetable oil', u'white sugar', u'baking soda']
+smallImageUrls	[u'http://i.yummly.com/Banana-Bread-_-Quick-Bread-For-Machines-Allrecipes-55818.s.png']
+sourceDisplayName	AllRecipes
+recipeName	Banana  Bread - Quick Bread for Machines
+attributes	{u'course': [u'Breads']}
+id	Banana-Bread-_-Quick-Bread-For-Machines-Allrecipes
+
