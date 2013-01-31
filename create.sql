@@ -18,7 +18,9 @@ CREATE TABLE records
   rating  float,
   totaltime int,  
   name char(100),
-  source char(250),
+  sourcename varchar(50),
+  sourceurl varchar(250),
+  servings int,
   PRIMARY KEY(ID)
 ) ENGINE=InnoDB;
 
@@ -27,7 +29,7 @@ CREATE TABLE records
 # Create recipe table
 #####################
 
-CREATE TABLE recipes (
+CREATE TABLE ingredients (
   id  char(200) NOT NULL,
   ingredient char(50) NOT NULL,
   quantity char(250),
@@ -38,10 +40,10 @@ CREATE TABLE recipes (
 #########################
 # Create ingredients table
 #########################
-CREATE TABLE ingredients (
-  name char(50) NOT NULL,
-  unit char(10),
-  PRIMARY KEY(name)
+CREATE TABLE recipes (
+  id char(200) NOT NULL,
+  ingredientLine varchar(200), NOT NULL
+  PRIMARY KEY(id, ingredientLine)
 ) ENGINE=InnoDB;
 
 

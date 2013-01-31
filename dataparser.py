@@ -8,14 +8,41 @@ import re
 import unicodedata
 from collections import *
 import time
-#sys.path.append('/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages')
 import pymongo
 import MySQLdb
 
-# Open database connection
-db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
-# prepare a cursor object using cursor() method
-cursor = db.cursor()
+
+def storeRecords(results):
+	(errorsRecords, errorsRecipes) = [0,0]
+
+	# Open database connection
+	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+	# prepare a cursor object using cursor() method
+	cursor = db.cursor()
+
+	for item in results["matches"]:
+		(itemid, rating, totaltime, itemname, source) = ['NULL']*5
+		try:
+			if 'id' in item.keys(): itemid = item["id"].decode('string_escape').replace("\'","\\\'")
+			if 'rating' in item.keys(): rating = str(item["rating"])
+			if 'totalTimeInSeconds' in item.keys(): totaltime = str(item["totalTimeInSeconds"])
+			if 'recipeName' in item.keys(): itemname = item["recipeName"].decode('string_escape').replace("\'","\\\'")
+			if 'sourceDisplayName' in item.keys(): source = item["sourceDisplayName"].decode('string_escape').replace("\'","\\\'")
+			cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, sourcename) VALUES(\'"+ itemid+'\','+rating+','+totaltime+',\''+itemname+"\',\'"+source+"\')")
+		except:
+			errorsRecords+=1
+
+		if 'ingredients' in item.keys():
+			for ingr in item["ingredients"]:
+				try:
+					cursor.execute("INSERT IGNORE INTO ingredients(id, ingredient) VALUES(\'" + itemid + '\',\'' + ingr + '\')')
+				except:
+					errorsRecipes +=1
+	if errorsRecords: print errorsRecords, " records did not fit expectations and threw an error."
+	if errorsRecipes: print errorsRecipes, " recipes did not fit expectations and threw an error."
+	db.commit()
+	db.close()
+
 
 def searchDatabase(query, outFile, startRec=0):
 	results = yummly.search(query, start=startRec)
@@ -30,8 +57,8 @@ def searchDatabase(query, outFile, startRec=0):
 			print "Key: ", key
 			print "Value: ", repr(val)
 		#print "DECODED: ", decoded
-	errors = 0
 	counter = startRec
+
 	while(counter<totalRecords):
 		print "Starting at ", counter
 		results	= yummly.search(query, start=counter)
@@ -39,43 +66,67 @@ def searchDatabase(query, outFile, startRec=0):
 		f 	= 	open(outFile,'w')
 		f.write(json.dumps(results, indent=4, separators = (',',': ')))
 		f.close()
-
-		for item in results["matches"]:
-			(itemid, rating, totaltime, itemname, source) = ['NULL']*5
-			try:
-				if 'id' in item.keys(): itemid = item['id'].decode('string_escape').replace("\'","\\\'")
-				if 'rating' in item.keys(): rating = str(item['rating'])
-				if 'totalTimeInSeconds' in item.keys(): totaltime = str(item['totalTimeInSeconds'])
-				if 'recipeName' in item.keys(): itemname = item['recipeName'].decode('string_escape').replace("\'","\\\'")
-				if 'sourceDisplayName' in item.keys(): source = item['sourceDisplayName'].decode('string_escape').replace("\'","\\\'")
-				cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, source) VALUES(\'"+ itemid+'\','+rating+','+totaltime+',\''+itemname+"\',\'"+source+"\')")
-			except:
-				errors+=1
-
+		storeRecords(results)
 		print len(results["matches"]), " records inserted into database..."
-#		time.sleep(50)
+#		time.sleep(10)
 		counter += len(results["matches"])
+ 
+def storeRecipes(recipeList):
+	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+	# prepare a cursor object using cursor() method
+	cursor = db.cursor()
+	error = 0
+	success = 0
+	for recipe in recipeList:
+		try:
+			recipeid = recipe["id"]
+			recipeid.replace("\'","\\\'")
+			for ingrLine in recipe["ingredientLines"]:
+				cursor.execute("INSERT IGNORE INTO recipes(id, ingredientLine) VALUES(\'" + recipeid + '\',\'' + ingrLine.replace("\'","\\\'") + '\')')
+			if 'source' in recipe.keys() and 'sourceRecipeUrl' in recipe["source"].keys():
+				url = recipe["source"]["sourceRecipeUrl"]
+				url.replace("\'","\\\'")
+				cursor.execute("UPDATE records SET sourceurl = \'"+url+"\' WHERE id=\'"+recipeid+"\'")
+			if 'numberOfServings' in recipe.keys():
+				servings = recipe['numberOfServings']
+				if type(servings) == int:
+					cursor.execute("UPDATE records SET servings = "+str(servings)+" WHERE id=\'"+recipeid+"\'")
+			success += 1
+		except:
+			error += 1
 		db.commit()
-	cursor.close()
 	db.close()
-	print errors, " records did not fit expectations and threw an error."
+	print success, " recipes successfully stored in database."
+	if error>0: print error, " recipes threw an error and failed to store."
 
 def pullRecipes(searchResultFile, recipeFile):
+	errors = 0
+	counter=0
+	# Open database connection
+	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+	# prepare a cursor object using cursor() method
+	cursor = db.cursor()
+	cursor.execute("""SELECT id FROM records""")
+	recipeList = []
+	subRecipeList = []
+	for recipe_id in cursor.fetchall():
+		if (len(recipeList)>0 and len(recipeList)%10 == 0 ):
+			print len(recipeList), " recipes found"
+			storeRecipes(subRecipeList)
+			subRecipeList = []
+		try:
+			recipe = yummly.recipe(recipe_id[0])
+			recipeList.append(recipe)
+			subRecipeList.append(recipe)
+		except:
+			errors+=1;
+	if errors: print errors, " recipes could not be retrieved and threw an error."
+	storeRecipes(recipeList)
+	db.close()
 
-	f = open(searchResultFile, 'r')
-	searchResult = json.loads(f.read())
+	f = open(recipeFile, 'w')
+	f.write(json.dumps(recipeList))
 	f.close()
-
-	recipeList = [];
-	for item in searchResult["matches"]:
-		recipe_id = item['id']
-		recipe = yummly.recipe(recipe_id)
-		recipeList.append(recipe)
-	fr 	= 	open(recipeFile,'w')
-	fr.write(json.dumps(recipeList, indent=4, separators = (',',': ')))
-	fr.close()
-	return recipeList
-
 
 def parseSearchResults(searchResultFile):
 	f = open(searchResultFile, 'r')
@@ -110,7 +161,7 @@ yummly.api_id	=	'5dd6a908'
 yummly.api_key	=	'1144f281d7ac2e4d2f08ba7883bdc396'
 outFile	= "search.output2.txt"
 recipeFile = "search.recipes.txt"
-res = searchDatabase("banana bread", outFile, 400)
+#res = searchDatabase("banana bread", outFile, 0)
 
 #parseSearchResults(outFile)
 #pullRecipes(outFile, recipeFile)
