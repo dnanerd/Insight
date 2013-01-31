@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/Users/apple/Desktop/Work/Scripts/Insight/venv/bin/python
 
 #import pymongo #==2.4.2
 import json
@@ -9,7 +9,7 @@ import unicodedata
 from collections import *
 import time
 #sys.path.append('/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages')
-#import pymongo
+import pymongo
 import MySQLdb
 
 # Open database connection
@@ -18,9 +18,9 @@ db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
 cursor = db.cursor()
 
 def searchDatabase(query, outFile, startRec=0):
-	maxRecords = 40
-	results = yummly.search(query, maxResults=maxRecords)
+	results = yummly.search(query, start=startRec)
 	totalRecords = results["totalMatchCount"]
+#	print results["matches"][0]["id"]
 
 	print "Keys: ",",".join(results.keys())
 	print "Number of records: ", results["totalMatchCount"]
@@ -30,18 +30,35 @@ def searchDatabase(query, outFile, startRec=0):
 			print "Key: ", key
 			print "Value: ", repr(val)
 		#print "DECODED: ", decoded
-
+	errors = 0
 	counter = startRec
 	while(counter<totalRecords):
-		print counter, " records inserted into database..."
-		results	= yummly.search(query, maxResults=maxRecords, start=counter)
+		print "Starting at ", counter
+		results	= yummly.search(query, start=counter)
+		print "Found ", len(results["matches"]), " additional records..."
+		f 	= 	open(outFile,'w')
+		f.write(json.dumps(results, indent=4, separators = (',',': ')))
+		f.close()
+
 		for item in results["matches"]:
-			cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, source) VALUES(\'"+ item['id'].decode('string_escape').replace("\'","\\\'")+'\','+str(item['rating'])+','+str(item['totalTimeInSeconds'])+',\''+item['recipeName'].decode('string_escape').replace("\'","\\\'")+"\',\'"+item['sourceDisplayName'].decode('string_escape').replace("\'","\\\'")+"\')")
-		time.sleep(20)
-		counter += maxRecords
+			(itemid, rating, totaltime, itemname, source) = ['NULL']*5
+			try:
+				if 'id' in item.keys(): itemid = item['id'].decode('string_escape').replace("\'","\\\'")
+				if 'rating' in item.keys(): rating = str(item['rating'])
+				if 'totalTimeInSeconds' in item.keys(): totaltime = str(item['totalTimeInSeconds'])
+				if 'recipeName' in item.keys(): itemname = item['recipeName'].decode('string_escape').replace("\'","\\\'")
+				if 'sourceDisplayName' in item.keys(): source = item['sourceDisplayName'].decode('string_escape').replace("\'","\\\'")
+				cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, source) VALUES(\'"+ itemid+'\','+rating+','+totaltime+',\''+itemname+"\',\'"+source+"\')")
+			except:
+				errors+=1
+
+		print len(results["matches"]), " records inserted into database..."
+#		time.sleep(50)
+		counter += len(results["matches"])
 		db.commit()
 	cursor.close()
 	db.close()
+	print errors, " records did not fit expectations and threw an error."
 
 def pullRecipes(searchResultFile, recipeFile):
 
@@ -93,7 +110,7 @@ yummly.api_id	=	'5dd6a908'
 yummly.api_key	=	'1144f281d7ac2e4d2f08ba7883bdc396'
 outFile	= "search.output2.txt"
 recipeFile = "search.recipes.txt"
-res = searchDatabase("banana bread", outFile, 40)
+res = searchDatabase("banana bread", outFile, 400)
 
 #parseSearchResults(outFile)
 #pullRecipes(outFile, recipeFile)
