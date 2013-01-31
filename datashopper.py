@@ -142,12 +142,13 @@ def parseSearchResults(searchResultFile):
 		print key, "\t", val
 
 
-def parseRecipes(recipeFile):
-	fr = open(recipeFile, 'r')
-	recipeList = json.loads(fr.read())
-	fr.close()
+def parseRecipes():
+	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+	# prepare a cursor object using cursor() method
+	cursor = db.cursor()
+	cursor.execute("""SELECT ingredientLine FROM recipes""")
 
-	for recipe in recipeList:
+	for recipe in cursor.fetchall():
 		ingredientList = recipe["ingredientLines"]
 		for ingr in ingredientList:
 			ingredientHash[repr(ingr)]+=1
