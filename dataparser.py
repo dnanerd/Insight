@@ -1,31 +1,47 @@
 #!/usr/bin/python
 
+#import pymongo #==2.4.2
 import json
 import yummly #https://github.com/dgilland/yummly.py
 import sys
-#import my_sql
+import re
+import unicodedata
+from collections import *
+import time
+#sys.path.append('/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages')
+#import pymongo
+import MySQLdb
 
+# Open database connection
+db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+# prepare a cursor object using cursor() method
+cursor = db.cursor()
 
-def searchDatabase(query, outFile):
-	results	= yummly.search(query)
-
-	f = open(outFile,'w')
-	f.write(json.dumps(results, indent=4, separators = (',',': ')))
-	f.close()
-
+def searchDatabase(query, outFile, startRec=0):
+	maxRecords = 40
+	results = yummly.search(query, maxResults=maxRecords)
+	totalRecords = results["totalMatchCount"]
 
 	print "Keys: ",",".join(results.keys())
 	print "Number of records: ", results["totalMatchCount"]
 	print "Search: ", results["criteria"]
-
 	for key,val in results.iteritems():
 		if (key != "matches"):
 			print "Key: ", key
 			print "Value: ", repr(val)
 		#print "DECODED: ", decoded
 
-	return(results)
-
+	counter = startRec
+	while(counter<totalRecords):
+		print counter, " records inserted into database..."
+		results	= yummly.search(query, maxResults=maxRecords, start=counter)
+		for item in results["matches"]:
+			cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, source) VALUES(\'"+ item['id'].decode('string_escape').replace("\'","\\\'")+'\','+str(item['rating'])+','+str(item['totalTimeInSeconds'])+',\''+item['recipeName'].decode('string_escape').replace("\'","\\\'")+"\',\'"+item['sourceDisplayName'].decode('string_escape').replace("\'","\\\'")+"\')")
+		time.sleep(20)
+		counter += maxRecords
+		db.commit()
+	cursor.close()
+	db.close()
 
 def pullRecipes(searchResultFile, recipeFile):
 
@@ -43,12 +59,30 @@ def pullRecipes(searchResultFile, recipeFile):
 	fr.close()
 	return recipeList
 
+
+def parseSearchResults(searchResultFile):
+	f = open(searchResultFile, 'r')
+	searchResult = json.loads(f.read())
+	f.close()
+
+	ingredientHash = Counter()
+	for item in searchResult["matches"]:
+		for ingr in item['ingredients']:
+			ingredientHash[ingr.decode('string_escape')]+=1
+	print "Num results: ", len(searchResult["matches"])
+	for key, val in ingredientHash.most_common():
+		print key, "\t", val
+
+
 def parseRecipes(recipeFile):
 	fr = open(recipeFile, 'r')
 	recipeList = json.loads(fr.read())
 	fr.close()
+
 	for recipe in recipeList:
 		ingredientList = recipe["ingredientLines"]
+		for ingr in ingredientList:
+			ingredientHash[repr(ingr)]+=1
 
 
 
@@ -57,9 +91,10 @@ def parseRecipes(recipeFile):
 
 yummly.api_id	=	'5dd6a908'
 yummly.api_key	=	'1144f281d7ac2e4d2f08ba7883bdc396'
-outFile	= "search.output.txt"
+outFile	= "search.output2.txt"
 recipeFile = "search.recipes.txt"
-#res = searchDatabase("banana bread", outFile)
+res = searchDatabase("banana bread", outFile, 40)
 
+#parseSearchResults(outFile)
 #pullRecipes(outFile, recipeFile)
-recipeList = parseRecipes(recipeFile)
+#recipeList = parseRecipes(recipeFile)

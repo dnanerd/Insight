@@ -1390,7 +1390,7 @@
             "id": "Banana-Bread-_-Quick-Bread-For-Machines-Allrecipes"
         }
     ],
-    "totalMatchCount": 2842,
+    "totalMatchCount": 2847,
     "attribution": {
         "url": "http://www.yummly.com/recipes/banana-bread",
         "text": "banana bread recipes: search powered by Yummly",
