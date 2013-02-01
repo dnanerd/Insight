@@ -12,6 +12,9 @@ import pymongo
 import MySQLdb
 
 
+def mysqlify(x):
+	return x.replace("\'","\\\'") 
+
 def storeRecords(results):
 	(errorsRecords, errorsRecipes) = [0,0]
 
@@ -23,10 +26,10 @@ def storeRecords(results):
 	for item in results["matches"]:
 		(itemid, rating, totaltime, itemname, source) = ['NULL']*5
 		try:
-			if 'id' in item.keys(): itemid = item["id"].decode('string_escape').replace("\'","\\\'")
+			if 'id' in item.keys(): itemid = mysqlify(item["id"].decode('string_escape'))
 			if 'rating' in item.keys(): rating = str(item["rating"])
 			if 'totalTimeInSeconds' in item.keys(): totaltime = str(item["totalTimeInSeconds"])
-			if 'recipeName' in item.keys(): itemname = item["recipeName"].decode('string_escape').replace("\'","\\\'")
+			if 'recipeName' in item.keys(): itemname = mysqlify(item["recipeName"].decode('string_escape'))
 			if 'sourceDisplayName' in item.keys(): source = item["sourceDisplayName"].decode('string_escape').replace("\'","\\\'")
 			cursor.execute("INSERT IGNORE INTO records(id, rating, totaltime, name, sourcename) VALUES(\'"+ itemid+'\','+rating+','+totaltime+',\''+itemname+"\',\'"+source+"\')")
 		except:
