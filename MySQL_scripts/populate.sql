@@ -27,3 +27,7 @@ VALUES('pinch','pinch'),('pinch of','pinch'), ('dash', 'pinch'), ('dash of', 'pi
 INSERT IGNORE INTO units(keyword, unit)
 VALUES('whole','unit'),('small','unit'),('medium','unit'),('large','unit');
 
+
+#don't update; make separate key
+UPDATE ingredients SET ingredient = 'vanilla yogurt'
+WHERE ingredient REGEXP '.*fat vanilla yogurt';

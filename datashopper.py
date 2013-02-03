@@ -11,7 +11,8 @@ import time
 import pymongo
 import MySQLdb
 
-
+db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
+#pmcon = pymongo.Connection('localhost', port=27017)
 def mysqlify(x):
 	return x.replace("\'","\\\'") 
 
@@ -19,7 +20,6 @@ def storeRecords(results):
 	(errorsRecords, errorsRecipes) = [0,0]
 
 	# Open database connection
-	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 
@@ -75,7 +75,6 @@ def searchDatabase(query, outFile, startRec=0):
 		counter += len(results["matches"])
  
 def storeRecipes(recipeList):
-	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	error = 0
@@ -106,7 +105,6 @@ def pullRecipes(searchResultFile, recipeFile):
 	errors = 0
 	counter=0
 	# Open database connection
-	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	cursor.execute("""SELECT id FROM records""")
@@ -146,7 +144,6 @@ def parseSearchResults(searchResultFile):
 
 
 def parseRecipes():
-	db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	cursor.execute("""SELECT ingredientLine FROM recipes""")

@@ -54,7 +54,7 @@
                                    <link rel="shortcut icon" href="../static/bootstrap/ico/favicon.png">
   </head>
 
-  <body>
+  <body onLoad="setTimeout('delayedRedirect()', 3000)">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -78,7 +78,7 @@
 
     <div class="container">
 
-      <h2>2843 recipes found. Applying magic...</h2>
+      <h2>2843 recipes found. Applying magic...(you will be redirected once it is done)</h2>
       <div class="progress progress-striped active">
       <div class="bar" style="width: 40%;"></div>
       </div> 
@@ -103,6 +103,10 @@
     <script src="../static/bootstrap/js/bootstrap-collapse.js"></script>
     <script src="../static/bootstrap/js/bootstrap-carousel.js"></script>
     <script src="../static/bootstrap/js/bootstrap-typeahead.js"></script>
-
+    <script type="text/javascript">
+    function delayedRedirect(){
+        window.location = "result2"
+    }
+    </script>
   </body>
 </html>

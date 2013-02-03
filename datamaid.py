@@ -1,7 +1,7 @@
 #!/Users/apple/Desktop/Work/Scripts/Insight/venv/bin/python
 
 #import pymongo #==2.4.2
-import datashopper
+
 
 import json
 import yummly #https://github.com/dgilland/yummly.py
@@ -15,8 +15,9 @@ import MySQLdb
 import pprint
 import re
 import copy
-
+import networkx as nx
 import nltk
+import pandas
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -26,8 +27,6 @@ cursor = db.cursor()
 cursor.execute("""SELECT * FROM units""")
 unitTuple = cursor.fetchall()
 unitHash = dict(unitTuple)
-pp.pprint(unitHash)
-
 
 cursor.execute("""SELECT * FROM ingredients""")
 ingredientTuples = cursor.fetchall()
@@ -59,13 +58,13 @@ def findUnit(subIngrLine):
 			if m:
 				#check that it's a word by itself (i.e. " c ")
 				unitMatched = True
-				unit = u
+				unit = unitHash[u]
 				count = m.group(1).strip()
 			else:
 				m = re.search(re.escape(u), subIngrLine, re.IGNORECASE)
 				if m:
 					unitMatched = True
-					unit = u
+					unit = unitHash[u]
 				else:
 #NOTE: this is a hack until I figure out something better
 					m = re.search("([-\/\d\s]+)\s?([A-Za-z]+)", subIngrLine)
@@ -103,6 +102,7 @@ def findIngredient(recipeid, ingredientLine):
 
 	return {'match':match,'index':ingrMatchIndex, 'ingredient':ingredient}
 
+def normalize
 #DESCRIPTION:
 #looks through ingredients list and recipe list and parses recipe list ingredients
 #into amount, unit, ingredient
@@ -146,22 +146,25 @@ def analyzeIngredients():
 			ingrMatched = findIngredient(recipeid, ingredientLine)
 			if (ingrMatched['match']):
 				#store matches in database
-				cursor.execute("UPDATE recipes SET ingredient=\'"+ingrMatched['ingredient']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+#				cursor.execute("UPDATE recipes SET ingredient=\'"+ingrMatched['ingredient']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
 				db.commit()
 				subIngrLine = ingredientLine[0:int(ingrMatched['index'])]
 			else:
 				if recipeid in matchedrecipes.keys(): del matchedrecipes[recipeid]
-				cursor.execute("UPDATE recipes SET ingredient=\'"+ingrMatched['ingredient']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+#				cursor.execute("UPDATE recipes SET ingredient=\'"+ingrMatched['ingredient']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
 
 			unitMatched = findUnit(subIngrLine)
 			if (unitMatched['match']):
 				#store matches in database
-				cursor.execute("UPDATE recipes SET unit=\'"+unitMatched['unit']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
-				cursor.execute("UPDATE recipes SET count=\'"+mysqlify(unitMatched['count'])+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+				if unitMatched['match'] in unitHash.keys():
+					cursor.execute("UPDATE recipes SET unit=\'"+unitHash[unitMatched['unit']]+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+#				else:
+#					cursor.execute("UPDATE recipes SET unit=\'"+unitMatched['unit']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+		#		cursor.execute("UPDATE recipes SET count=\'"+mysqlify(unitMatched['count'])+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
 				db.commit()
 			else:
 				if recipeid in matchedrecipes.keys(): del matchedrecipes[recipeid]
-				cursor.execute("UPDATE recipes SET unit=\'"+unitMatched['unit']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
+			#	cursor.execute("UPDATE recipes SET unit=\'"+unitMatched['unit']+"\' WHERE id = \'"+recipeid+"\' and ingredientLine = \'" + mysqlify(ingredientLine) + "\'")
 
 			if (unitMatched['match'] and ingrMatched['match']):
 				totalmatched+=1
@@ -196,10 +199,18 @@ def analyzeIngredients():
 	idlist = ",".join(matchedrecipes.keys())
 	idlist = mysqlify(idlist)
 	idlist = idlist.replace(",","\',\'")
-#	cursor.execute("""CREATE VIEW formatrecipes AS SELECT * FROM bakingrecipes WHERE id IN (\'"+ idlist + "\')""")
-	db.commit()
+#create view formatrecipes as select * from bakingrecipes where id not in (select distinct id from bakingrecipes where ingredient= 'NULL' or  unit='NULL');	db.commit()
 	db.close()
 #END DEF ANALYZE INGREDIENTS
 
-analyzeIngredients()
+#def createNetwork():
+cursor = db.cursor()
+cursor.execute("""SELECT * FROM ingredients""")
+recipeTuples = cursor.fetchall()
+
+G = nx.Graph(type="recipes")
+
+
+#analyzeIngredients()
+#createNetwork()
 

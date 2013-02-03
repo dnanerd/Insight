@@ -49,8 +49,12 @@ def searching():
 
 @app.route('/result')
 def result():
-    return render_template('barchart.html')
+    return render_template('crossfilter.html')
 
+
+@app.route('/result2')
+def result2():
+    return render_template('crossfilter.dummy.html')
     
 @app.route('/api')
 def api():
@@ -73,4 +77,6 @@ if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
     app.debug = True
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='192.168.1.28', port=8000)
+
+    
