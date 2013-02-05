@@ -4,9 +4,13 @@
 ########################################
 
 DROP TABLE if exists records;
-DROP TABLE IF EXISTS RECIPES;
+DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS INGREDIENTS;
-
+DROP TABLE if exists units;
+DROP TABLE if exists recipeingredients;
+DROP VIEW if exists bakingrecipes;
+DROP VIEW if exists bakingrecords;
+DROP VIEW if exists formatrecipes;
 
 ########################
 # Create records table
@@ -21,8 +25,8 @@ CREATE TABLE records
   sourcename varchar(50),
   sourceurl varchar(250),
   servings int,
-  PRIMARY KEY(ID)
-) ENGINE=InnoDB;
+  PRIMARY KEY (id)
+) ENGINE = InnoDB;
 
 
 #####################
@@ -30,9 +34,14 @@ CREATE TABLE records
 #####################
 
 CREATE TABLE ingredients (
-  id  char(200) NOT NULL,
   ingredient char(50) NOT NULL,
-  quantity char(250),
+  normingredient char(50),
+  PRIMARY KEY (ingredient)
+) ENGINE = InnoDB;
+
+CREATE TABLE recipeingredients (
+  id char(200) NOT NULL,
+  ingredient char(50) NOT NULL,
   PRIMARY KEY (id, ingredient)
 ) ENGINE = InnoDB;
 
@@ -42,8 +51,8 @@ CREATE TABLE ingredients (
 #########################
 CREATE TABLE recipes (
   id char(200) NOT NULL,
-  ingredientLine varchar(200), NOT NULL
-  ingredient varchar(50),
+  ingredientLine varchar(200) NOT NULL,
+  ingredient char(50),
   unit varchar(50),
   count int,
   PRIMARY KEY(id, ingredientLine)

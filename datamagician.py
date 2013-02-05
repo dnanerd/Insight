@@ -1,8 +1,7 @@
 #!/Users/apple/Desktop/Work/Scripts/Insight/venv/bin/python
 
 #import pymongo #==2.4.2
-#import datashopper, datamaid
-
+import datashopper, datamaid
 import json
 import yummly #https://github.com/dgilland/yummly.py
 import sys
@@ -29,17 +28,6 @@ except ImportError:
     import scikits.learn as ml
 
 
-
-pp = pprint.PrettyPrinter(indent=4)
-db = sql.connect("localhost",'testuser','testpass',"yummly" )
-cursor = db.cursor()
-cursor.execute("""SELECT * FROM units""")
-unitTuple = cursor.fetchall()
-unitHash = dict(unitTuple)
-pp.pprint(unitHash)
-
-baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','cinnamon','milk','brown sugar', 'whole wheat flour']
-baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','sour cream', 'milk','buttermilk','water', 'whole wheat flour']
 #modify baseIngredients to be all ingredients
 def digify(numstr):
 	if numstr == 'NULL': return 0
@@ -68,23 +56,36 @@ def vectorizeRecipes(ingrVector=baseIngredients, recipeIDs='', ):
 	ingrHashunit = defaultdict(tuple)
 	recipe_db = np.asarray(recipeTuples)
 
-	for tup in recipeTuples:
-		if (recipeIDs != '') and (tup not in recipeIDs): continue
+	for (rid, ingLine, ing, unit, qty) in recipeTuples:
+		if (recipeIDs != '') and (rid not in recipeIDs): continue
 
-		if not tup[0] in ingrHash.keys():
-			ingrHash[tup[0]] = ['0']*len(ingrVector)
-			ingrHashunit[tup[0]] = ['']*len(ingrVector)
-		if tup[2] in ingrVector:
-			ingrHash[tup[0]][ingrVector.index(tup[2])] = str(digify(tup[4]))
-			ingrHashunit[tup[0]][ingrVector.index(tup[2])] = tup[3]
-			if tup[3] in unitHash.keys():
-				ingrHashunit[tup[0]][ingrVector.index(tup[2])] = unitHash[tup[3]]
+		if not rid in ingrHash.keys():
+			ingrHash[rid] = ['0']*len(ingrVector)
+			ingrHashunit[rid] = ['']*len(ingrVector)
+		if ing in ingrVector:
+			ingrHash[rid][ingrVector.index(ing)] = str(digify(qty))
+			ingrHashunit[rid][ingrVector.index(ing)] = unit
+			if unit in unitHash.keys():
+				ingrHashunit[rid][ingrVector.index(ing)] = unitHash[unit]
 	frame = pd.DataFrame(ingrHash, index = ingrVector,columns = ingrHash.keys(), dtype=float).T.astype(float)
 	return frame
 
-frame = vectorizeRecipes()
-frame.to_csv('dummymatrix.csv')
-frame.to_csv('dummymatrix.tsv', sep="\t")
 
-#frame2 = pd.DataFrame(ingrHashunit, index = baseIngredients,columns = ingrHashunit.keys()).T.astype(float)
-#frame2.to_csv('dummymatrix2.tsv', sep="\t")
+if __name__ == "__main__":
+	pp = pprint.PrettyPrinter(indent=4)
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+	cursor.execute("""SELECT * FROM units""")
+	unitTuple = cursor.fetchall()
+	unitHash = dict(unitTuple)
+	pp.pprint(unitHash)
+
+	baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','cinnamon','milk','brown sugar', 'whole wheat flour']
+	baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','sour cream', 'milk','buttermilk','water', 'whole wheat flour']
+
+	frame = vectorizeRecipes()
+	frame.to_csv('dummymatrix.csv')
+	frame.to_csv('dummymatrix.tsv', sep="\t")
+
+	#frame2 = pd.DataFrame(ingrHashunit, index = baseIngredients,columns = ingrHashunit.keys()).T.astype(float)
+	#frame2.to_csv('dummymatrix2.tsv', sep="\t")

@@ -19,25 +19,50 @@ import networkx as nx
 import nltk
 import pandas
 
-pp = pprint.PrettyPrinter(indent=4)
 
-db = MySQLdb.connect("localhost",'testuser','testpass',"yummly" )
-# prepare a cursor object using cursor() method
-cursor = db.cursor()
-cursor.execute("""SELECT * FROM units""")
-unitTuple = cursor.fetchall()
-unitHash = dict(unitTuple)
 
-cursor.execute("""SELECT * FROM ingredients""")
-ingredientTuples = cursor.fetchall()
-
-ingredientsHash = defaultdict(int)
-for ingrTup in ingredientTuples:
-	if ingrTup[0] in ingredientsHash.keys():
-		ingredientsHash[ingrTup[0]].append(ingrTup[1])
+def singularify(word):
+	synsets = wn.synsets(word)
+	if synsets:
+		return synsets[0].lemma_names[0]
 	else:
-		ingredientsHash[ingrTup[0]] = [ingrTup[1]]
+		return word
 
+def normalizeIngredient(ingr,ingrList):
+	ingr = ingr.replace('-','')
+	tokens = nltk.word_tokenize(ingr)
+	if len(tokens)>1:
+		nouns = [word for word,tag in nltk.pos_tag(tokens) if 'NN' in tag]
+		#if there is more than one word in the ingredient list
+		#parse it to see if there are descriptors
+		candidateNouns = [n for n in nouns if n in ingrList]
+		if len(candidateNouns)>1:
+			print "More than one noun found: ",",".join(candidateNouns)
+			#pick one
+			choice = 0
+			singularify(candidateNouns[choice], ingrList)
+		elif len(candidateNouns)==1:
+			print "Merge nouns: 1)",ingr," 2)",candidateNouns[0], "?"
+			return singularify(candidateNouns[0],ingrList)
+		else:
+			#no candidate nouns in database
+			return singularify(ingr,ingrList)
+		#merge, then call normalizeIngredient(ingr, ingrList) again with modified ingredient/ingrList
+	else:
+		return singularify(ingr, ingrList)
+
+#DESCRIPTION:
+#looks through ingredients list and parses recipe list ingredients
+#into amount, unit, ingredient
+def normalizeIngredients():
+	cursor = db.cursor()
+	cursor.execute("""SELECT DISTINCT ingredient FROM ingredients""")
+	ingredientTuples = cursor.fetchall()
+
+	storedIngredientList = [ingrTup[0] for ingrTup in ingredientTuples]
+	for ingr in storedIngredientList:
+		ingrNorm = normalizeIngredient(ingr, storedIngredientList)
+		cursor.execute("""UPDATE ingredients SET normingredient = \'" + ingrNorm + "\' WHERE ingredient = \'" + ingr + "\'""")
 
 def mysqlify(x):
 	return x.replace("\'","\\\'") 
@@ -102,7 +127,7 @@ def findIngredient(recipeid, ingredientLine):
 
 	return {'match':match,'index':ingrMatchIndex, 'ingredient':ingredient}
 
-def normalize
+
 #DESCRIPTION:
 #looks through ingredients list and recipe list and parses recipe list ingredients
 #into amount, unit, ingredient
@@ -111,19 +136,6 @@ def analyzeIngredients():
 	cursor = db.cursor()
 	cursor.execute("""SELECT id, ingredientLine FROM bakingrecipes""")
 	recipeTuples = cursor.fetchall()
-
-#	pp.pprint(ingredientsHash)
-#	fd = nltk.FreqDist()
-#	for line in retrievedTuples:
-#		ingredientLine = line[1]
-#		words = nltk.word_tokenize(ingredientLine)
-		# for each token in the relevant text, increment its counter
-#		for word in words:
-#			fd.inc(word)
-#	print fd.N(), " samples"
-#	print fd.B(), " bins"
-#	for word in fd.keys()[:10]:
-#		print word, fd[word]
 
 	unit = nltk.FreqDist()
 	unmatchedlines = nltk.FreqDist()
@@ -200,17 +212,22 @@ def analyzeIngredients():
 	idlist = mysqlify(idlist)
 	idlist = idlist.replace(",","\',\'")
 #create view formatrecipes as select * from bakingrecipes where id not in (select distinct id from bakingrecipes where ingredient= 'NULL' or  unit='NULL');	db.commit()
-	db.close()
 #END DEF ANALYZE INGREDIENTS
 
-#def createNetwork():
-cursor = db.cursor()
-cursor.execute("""SELECT * FROM ingredients""")
-recipeTuples = cursor.fetchall()
-
-G = nx.Graph(type="recipes")
 
 
-#analyzeIngredients()
-#createNetwork()
+if __name__ == "__main__":
+	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
+	# prepare a cursor object using cursor() method
+	cursor = db.cursor()
+	cursor.execute("""SELECT * FROM units""")
+	unitTuple = cursor.fetchall()
+	unitHash = dict(unitTuple)
+
+	normalizeIngredients()
+
+
+#	analyzeIngredients()
+
+
 
