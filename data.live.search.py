@@ -30,15 +30,15 @@ def searchRecipes(query):
 	cursor.execute("""DROP VIEW IF EXISTS searchrecords""")
 	cursor.execute("""CREATE VIEW searchrecords AS SELECT * FROM records WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'""")
 	cursor.execute("""SELECT count(*) FROM searchrecords""")
-	cursor.execute("""DROP VIEW IF EXISTS searchrecipes""")
-	cursor.execute("""CREATE VIEW searchrecipes AS SELECT * FROM recipes WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'""")
-	cursor.execute("""SELECT count(*) FROM searchrecipes""")
-	cursor.execute("""DROP VIEW IF EXISTS searchrecipeingredients""")
-	cursor.execute("""CREATE VIEW searchrecipeingredients AS SELECT * FROM recipeingredients WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'""")
-	cursor.execute("""SELECT count(*) FROM searchrecipeingredients""")
+#	cursor.execute("""DROP VIEW IF EXISTS searchrecipes""")
+#	cursor.execute("""CREATE VIEW searchrecipes AS SELECT * FROM recipes WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'""")
+#	cursor.execute("""SELECT count(*) FROM searchrecipes""")
+#	cursor.execute("""DROP VIEW IF EXISTS searchrecipeingredients""")
+#	cursor.execute("""CREATE VIEW searchrecipeingredients AS SELECT * FROM recipeingredients WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'""")
+#	cursor.execute("""SELECT count(*) FROM searchrecipeingredients""")
 	db.commit()
 	db.close()
 
 if __name__ == "__main__":
 
-	searchRecipes('cookies')
+	searchRecipes('banana bread')

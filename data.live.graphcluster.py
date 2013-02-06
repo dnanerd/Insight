@@ -55,6 +55,33 @@ def loadRecipeGraph(recipenodes):
 		Grecipes.add_weighted_edges_from(jaccardTup)
 	return Grecipes
 
+def getClusterLabel(names):
+	namesl = ".".join([n[0] for n in names])
+	tokens = nltk.WordPunctTokenizer().tokenize(namesl)
+	bigram_measures = nltk.collocations.BigramAssocMeasures()
+	word_fd = nltk.FreqDist(tokens)
+	bigram_fd = nltk.FreqDist(nltk.bigrams(tokens))
+	finder = BigramCollocationFinder(word_fd, bigram_fd)
+	finder.apply_word_filter(lambda w: w in ('.', ',', '!', '\'','(', ')'))
+	finder.apply_freq_filter(3)
+	bigram_scored = finder.score_ngrams(bigram_measures.raw_freq)
+	#	print sorted(finder.nbest(bigram_measures.raw_freq,2),reverse=True)
+
+	finder = TrigramCollocationFinder.from_words(tokens)
+	finder.apply_word_filter(lambda w: w in ('.', ',', '!', '\'','(', ')'))
+	finder.apply_freq_filter(3)
+	trigram_scored = finder.score_ngrams(trigram_measures.raw_freq)
+
+	print "Trigram: "
+	print trigram_scored[0]
+	print "Bigram: "
+	print bigram_scored[0]
+	if trigram_scored[0][1]/bigram_scored[0][1] > 0.85:
+		#if the trigram score is significant compared to the bigram score
+		return " ".join(trigram_scored[0][0])
+	else:
+		return " ".join(bigram_scored[0][0])
+#	print sorted(finder.nbest(trigram_measures.raw_freq, 2)
 
 if __name__ == "__main__":
 	baseIngredients = ['eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder']
@@ -71,7 +98,7 @@ if __name__ == "__main__":
 	print "ingredient hash created"
 
 #restrict this for now; later put it up on hadoop
-	cursor.execute("""SELECT id, ingredient FROM recipeingredients WHERE id REGEXP \'.*banana.*bread.*\'""")
+	cursor.execute("""SELECT id, ingredient FROM searchrecipeingredients""")
 	ingredientTuples = cursor.fetchall()
 
 	#create recipe/ingredient graph
@@ -87,8 +114,9 @@ if __name__ == "__main__":
 	
 	#sort ingredient by degree
 	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
-	mediandeg = [G.degree(rn) for rn in recipeNodes]
+	degrees = [G.degree(rn) for rn in recipeNodes]
 	selectedIngredients = sortedIngrNodes[1:int(np.median(degrees))]
+
 
 	#find candidate recipes
 	candidateRecipes = set()
@@ -121,6 +149,7 @@ if __name__ == "__main__":
 	eig_cen = nx.eigenvector_centrality(recipe_mc)
 	rec = [n[1] for n in highest_centrality(eig_cen,10)]
 
+	getClusterLabel(rec)
 #	recipeDF = vectorizeRecipes(selectedIngredients, candidateRecipes)
 #	recipeDF.ix[rec]
 
