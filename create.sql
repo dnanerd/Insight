@@ -46,6 +46,13 @@ CREATE TABLE recipeingredients (
 ) ENGINE = InnoDB;
 
 
+CREATE TABLE recipejaccard (
+  id1 char(200) NOT NULL,
+  id2 char(200) NOT NULL,
+  jaccard float,
+  PRIMARY KEY (id1, id2)
+) ENGINE = InnoDB;
+
 #########################
 # Create ingredients table
 #########################
@@ -73,7 +80,7 @@ CREATE TABLE units (
 #####################
 # Define foreign keys
 #####################
-CREATE VIEW bakingrecords AS SELECT * FROM records WHERE id REGEXP '.*banana.*bread.*';
+CREATE VIEW searchrecords AS SELECT * FROM records WHERE id REGEXP '.*banana.*bread.*';
 CREATE VIEW bakingrecipes AS SELECT * FROM recipes WHERE id REGEXP '.*banana.*bread.*';
 #ALTER TABLE orderitems ADD CONSTRAINT fk_orderitems_orders FOREIGN KEY (order_num) REFERENCES orders (order_num);
 #ALTER TABLE orderitems ADD CONSTRAINT fk_orderitems_products FOREIGN KEY (prod_id) REFERENCES products (prod_id);
