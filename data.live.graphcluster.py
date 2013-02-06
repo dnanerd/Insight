@@ -17,6 +17,7 @@ import numpy as np
 import scipy as sp
 import pandas as pd
 import nltk
+import pickle
 import networkx as nx
 #import matplotlib as mpl
 
@@ -25,6 +26,11 @@ try:
     import sklearn as ml
 except ImportError:
     import scikits.learn as ml
+
+def retrieveSearchRecords(searchResultFile):
+	f = open(searchResultFile, 'r')
+	results = f.read().split("\n")
+	return results
 
 def Jaccard(list1, list2):
 	intersection = list(set(list1) & set(list2))
@@ -47,12 +53,15 @@ def loadRecipeGraph(recipenodes):
 
 	print "Adding ", len(recipenodes), " nodes..."
 	Grecipes.add_nodes_from(recipenodes)
-
+	print "Retrieving jaccard scores from database..."	
 	cursor = db.cursor()
 	cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.5 AND id1 IN (\'" + "\',\'".join(recipenodes) + "\') AND id2 IN (\'" + "\',\'".join(recipenodes) + "\')")
 	jaccardTup = cursor.fetchall()
+	print "Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
 	if jaccardTup:
 		Grecipes.add_weighted_edges_from(jaccardTup)
+		pickle.dump(Grecipes, open('Grecipesjaccardgraph.txt', 'w'))
+
 	return Grecipes
 
 def getClusterLabel(names):
@@ -97,8 +106,10 @@ if __name__ == "__main__":
 
 	print "ingredient hash created"
 
+	searchResultFile = 'searchrecordids.txt'
+	records = retrieveSearchRecords(searchResultFile)
 #restrict this for now; later put it up on hadoop
-	cursor.execute("""SELECT id, ingredient FROM searchrecipeingredients""")
+	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'"+"\',\'".join(records)+"\')")
 	ingredientTuples = cursor.fetchall()
 
 	#create recipe/ingredient graph

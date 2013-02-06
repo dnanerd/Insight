@@ -1299,4 +1299,32 @@ Banana-Bread-TasteOfHome	cup		cup	cup	teaspoon	teaspoon		teaspoon
 No-Butter-Banana-Bread-Food_com-169992														
 Banana-Bread-Topped-With-Coconut-Recipezaar	ripe	unit	cup	cup	teaspoon	teaspoon		teaspoon	cup				cup	
 Chocolate-Banana-Bread-Pudding-Allrecipes	unit	unit		cup			tablespoon				cup			
-Paula-Deen-Banana-Bread-Recipezaar	very	unit	cup	cup	teaspoon	teaspoon		teaspoon	
+Paula-Deen-Banana-Bread-Recipezaar	very	unit	cup	cup	teaspoon	teaspoon		teaspoon	cup					
+Banana-Whole-Wheat-Bread-Recipezaar	unit	unit			teaspoon		teaspoon						cup	cup
+Lynda_s-Banana-Bread-Recipezaar	ripe	unit	cup	cup		teaspoon	teaspoon							
+Old_fashioned-Fragrant-Banana-Bread-Recipezaar														
+Yummy-Banana-Bread-Food_com-111274														
+Black-Walnut-Banana-Nut-Bread-Recipezaar	cup	unit	cup	cup		teaspoon						tsp		
+Banana-Coconut-Bread-Recipezaar														
+Idiot-Proof-Banana-Bread-Food_com-190011														
+Banana-Nut-Bread-Ala-Sam-Recipezaar	unit	unit	cup	cup	teaspoon	teaspoon								
+Banana-Nut-Corn-Bread-Recipe-Taste-of-Home-44116	cup										cup			
+Classic-Banana-Bread-Recipezaar_1	cup	unit	cup	cup	teaspoon	teaspoon	teaspoon		cup					
+Banana-Bread-Food_com-127567	cup	unit	cup		teaspoon	teaspoon								
+Healthy-Blueberry_banana-Bread-Recipezaar	mashed	unit	cup	cup	teaspoon			teaspoon						cup
+Sarah_s-Blueberry-Banana-Bread-Recipezaar														
+Bunches-Of-Bananas-Bread-Recipezaar														
+Fuzzypugs-Raspberry-Dark-Chocolate-Banana-Bread-Food_com-79172	unit	nutm	cup		teaspoon	teaspoon			cup					
+Banana-Bonanza-Bread-_vegan_-Recipezaar	ripe		cup	cup		teaspoon	teaspoon	teaspoon						
+Yankee-Banana-Bread-Recipezaar	cup				teaspoon	teaspoon						cup		cup
+Just-Another-Banana-Bread-Recipezaar														
+Miracle-Whip-_take-5_--Banana-Bread-Food_com-116908	cup		cup	cup		teaspoon								
+Banana-Bread-3-Recipezaar	ripe	unit	cup	cup	teaspoon	teaspoon	teaspoon							
+Applesauce-Banana-Bread-Recipezaar	unit	unit	cup	cup	teaspoon	teaspoon	teaspoon	tablespoon						
+Simply-the-Best-Above-All-the-Rest-Banana-Bread-Food_com-149922														
+Chocolate-Chunk-Banana-Bread-Recipezaar														
+Perfect-Banana-Bread-Recipezaar_1	unit	unit	cup	cup	teaspoon	teaspoon	teaspoon	teaspoon	tsp					
+Mommy_s-Banana-Bread-AllRecipes-202580														
+Banana-Tea-Bread-Recipezaar_2	ripe	unit	cup	cup	teaspoon	teaspoon		teaspoon						
+Mom-Cooper_s-Banana-Bread-Recipezaar	cup	unit	cup	cup	teaspoon	teaspoon	teaspoon		cup					
+Reduced_calorie-Banana-Bread-Recipezaar	cup		cup	cup	teaspoon	teaspoon		teaspoon						
