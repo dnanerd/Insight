@@ -19,7 +19,6 @@ import scipy as sp
 import pandas as pd
 import nltk
 import networkx as nx
-import matplotlib as plt
 
 
 try:
@@ -45,9 +44,27 @@ def digify(numstr):
 			#not a fraction
 			sum += float(d)
 	return sum
+def retrieveSearchRecords(searchResultFile):
+	f = open(searchResultFile, 'r')
+	results = f.read().split("\n")
+	table = [row.split("\t") for row in results]
+	return table
+
+def vectorizeIngredients():
+	searchResultFile = 'searchrecordids.txt'
+	records = retrieveSearchRecords(searchResultFile)
+	recordsHash = dict(records)
+	#restrict this for now; later put it up on hadoop
+	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(recordsHash.keys())+"\')")
+	ingredientTuples = cursor.fetchall()
+
+#	return pd.DataFrame(zip(*ingredientTuples),index=['id','ingredient', 'name']).T
+	ingrHash = defaultdict(tuple)
+	ingredients = set([ingTup[1] for ingTup in ingredientTuples])
+	for rid, ingredient, name in ingredientTuples:
 
 
-def vectorizeRecipes(ingrVector=baseIngredients, recipeIDs='', ):
+def vectorizeRecipes(recipeIDs='', ):
 	cursor = db.cursor()
 	cursor.execute("""SELECT * FROM formatrecipes""")
 	recipeTuples = cursor.fetchall()
@@ -80,10 +97,7 @@ if __name__ == "__main__":
 	unitHash = dict(unitTuple)
 	pp.pprint(unitHash)
 
-	baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','cinnamon','milk','brown sugar', 'whole wheat flour']
-	baseIngredients = ['bananas', 'eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder','butter','sour cream', 'milk','buttermilk','water', 'whole wheat flour']
-
-	frame = vectorizeRecipes()
+	frame = vectorizeIngredients()
 	frame.to_csv('dummymatrix.csv')
 	frame.to_csv('dummymatrix.tsv', sep="\t")
 

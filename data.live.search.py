@@ -29,11 +29,11 @@ def searchRecipes(query):
 	#	cursor.execute("""SELECT * FROM units""")
 	querywords = nltk.word_tokenize(query)
 	print "searching for results"
-	cursor.execute("SELECT id, name FROM records WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'")
+	cursor.execute("SELECT id FROM records WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'")
 	records = cursor.fetchall()
 	print "printing results"
 	f = open(searchResultFile,'w')
-	f.write("\n".join(["\t".join(r) for r in records]))
+	f.write("\n".join([r[0] for r in records]))
 	f.close()
 
 

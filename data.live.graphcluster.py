@@ -31,8 +31,7 @@ except ImportError:
 def retrieveSearchRecords(searchResultFile):
 	f = open(searchResultFile, 'r')
 	results = f.read().split("\n")
-	table = [row.split("\t") for row in results]
-	return table
+	return results
 
 def Jaccard(list1, list2):
 	intersection = list(set(list1) & set(list2))
@@ -96,6 +95,52 @@ def getClusterLabel(names):
 		return " ".join(bigram_scored[0][0])
 #	print sorted(finder.nbest(trigram_measures.raw_freq, 2)
 
+def vectorizeIngredientsFromGraph(G, recipenodes, ingredientnodes):
+	ingrHash = defaultdict(tuple)
+	for rn in recipenodes:
+		ingrHash[rn] = [0]*len(ingredientnodes)
+		recipeIngr = G.neighbors(rn)
+		for ing in recipeIngr:
+			ingrHash[rn][ingredientnodes.index(ing)] += 1
+	frame = pd.DataFrame(ingrHash, index = ingredientnodes,columns = recipenodes, dtype=float).T.astype(float)
+	return frame
+
+
+def vectorizeIngredients():
+	searchResultFile = 'searchrecordids.txt'
+	records = retrieveSearchRecords(searchResultFile)
+	#restrict this for now; later put it up on hadoop
+	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
+	ingredientTuples = cursor.fetchall()
+
+#	return pd.DataFrame(zip(*ingredientTuples),index=['id','ingredient', 'name']).T
+	ingrHash = defaultdict(tuple)
+	ingredients = list(set([ingTup[1] for ingTup in ingredientTuples]))
+#	for rid, ingredient, name in ingredientTuples:
+
+def filterRecipeGraph(Gref, cutoff):
+	Gnew = Gref.copy()
+	for id1, id2, edge in Gref.edges(data=True):
+		if edge['weight']<cutoff:
+			Gnew.remove_edge(id1,id2)
+	return Gnew
+
+def clusterVariationsTestDummy():
+	jaccards = [edge['weight'] for id1, id2, edge in Grecipes.edges(data=True)]
+	percentile = 97
+	jcutoff = np.percentile(jaccards, percentile)
+	print "The " + str(percentile) + "th percentile jaccard cutoff is ", str(jcutoff), ". Setting cutoff there."
+	Gfilter = filterRecipeGraph(Grecipes, jcutoff)
+	recipe_components = nx.connected_component_subgraphs(Gfilter)
+	for i,recipe_mc in enumerate(recipe_components):
+		if i>5: break
+		clusternodes = recipe_mc.nodes()
+	#	print recipe_mc.nodes()
+#		if (float(len(clusternodes))/float(len(recipeNodes))) >0.01:
+		print "cluster "+str(i) + ": " + str(len(clusternodes)) + " nodes"
+		label = getClusterLabel([recordsHash[c] for c in clusternodes])
+		print "LABEL: ", label
+
 if __name__ == "__main__":
 	baseIngredients = ['eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder']
 	db = sql.connect("localhost",'testuser','testpass',"test" )
@@ -112,16 +157,16 @@ if __name__ == "__main__":
 
 	searchResultFile = 'searchrecordids.txt'
 	records = retrieveSearchRecords(searchResultFile)
-	recordsHash = dict(records)
 #restrict this for now; later put it up on hadoop
-	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'"+"\',\'".join(recordsHash.keys())+"\')")
+	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
 	ingredientTuples = cursor.fetchall()
+	recordsHash = dict([(rid, name) for rid, ingr, name in ingredientTuples])
 
 	#create recipe/ingredient graph
 	G = nx.Graph()
 	#add all recipes into graph as nodes
 	recipeNodes = list(set([ingrTup[0] for ingrTup in ingredientTuples]))
-	ingredientNodes = [ingrHash[ingr] for recipeid, ingr in ingredientTuples]
+	ingredientNodes = [ingrHash[ingr] for recipeid, ingr, name in ingredientTuples]
 	ingredientNodes = list(set(ingredientNodes))
 	G.add_nodes_from(recipeNodes, type='recipes')
 	G.add_nodes_from(ingredientNodes, type='ingredient')
@@ -142,7 +187,7 @@ if __name__ == "__main__":
 	defaultGFile = 'Grecipesjaccardgraph.txt'
 
 
-	Grecipes = loadRecipeGraph(recipeNodes, defaultGFile, loadFromFile = False)
+	Grecipes = loadRecipeGraph(recipeNodes, defaultGFile, loadFromFile = True)
 	
 #	candidateIngredients = list(candidateIngredients)
 
@@ -175,7 +220,8 @@ if __name__ == "__main__":
 #			rec = [n[1] for n in highest_centrality(eig_cen,10)]
 
 #			getClusterLabel(rec)
-#	recipeDF = vectorizeRecipes(selectedIngredients, candidateRecipes)
+
+#	recipeDF = vectorizeIngredientsFromGraph(G, recipe_components[0].nodes(), ingredientNodes)
 #	recipeDF.ix[rec]
 
 #	recipeDF.to_csv('recipeDF.csv')

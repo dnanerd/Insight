@@ -35,12 +35,14 @@ def pullRecipes(searchResultFile, recipeFile, yapi_id, yapi_key):
 			print counter, " recipes found"
 			storeRecipes(subRecipeList)
 			subRecipeList = []
+			if errors: print errors, " recipes could not be retrieved and threw an error."
+			errors = 0
 		try:
 			recipe = yummly.recipe(recipe_id)
 			subRecipeList.append(recipe)
 		except:
 			errors+=1;
-	if errors: print errors, " recipes could not be retrieved and threw an error."
+
 	if len(subRecipeList)>0:
 		storeRecipes(subRecipeList)
 
@@ -50,9 +52,9 @@ def pullRecipes(searchResultFile, recipeFile, yapi_id, yapi_key):
 if __name__ == "__main__":
 
 
-	yummly.api_id	=	'5b136dc3'
-	yummly.api_key	=	'65a226f2bf78787e207a98499cbaec5f'
-	search ="muffin"
+	yummly.api_id	=	'5dd6a908'
+	yummly.api_key	=	'1144f281d7ac2e4d2f08ba7883bdc396'
+	search ="cookies"
 	outFile	= "recordsdb."+search+".flat.txt"
 	recipeFile = "recipedb."+search+".flat.txt"
 	f2 = open('errorsrecipes.txt', 'w')
