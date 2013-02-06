@@ -52,9 +52,9 @@ if __name__ == "__main__":
 
 	yummly.api_id	=	'5b136dc3'
 	yummly.api_key	=	'65a226f2bf78787e207a98499cbaec5f'
-	search ="cake"
+	search ="muffin"
 	outFile	= "recordsdb."+search+".flat.txt"
-	recipeFile = "recipedb."+search+".flat2.txt"
+	recipeFile = "recipedb."+search+".flat.txt"
 	f2 = open('errorsrecipes.txt', 'w')
 	f2.close()
 	f = open('errors.txt', 'w')

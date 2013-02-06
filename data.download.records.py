@@ -50,14 +50,11 @@ if __name__ == "__main__":
 
 	yummly.api_id	=	'5b136dc3'
 	yummly.api_key	=	'65a226f2bf78787e207a98499cbaec5f'
-	outFile	= "recordsdb.cake.flat.txt"
+	search = 'cookies'
+	outFile	= "recordsdb."+search+".flat.txt"
 	f = open('errors.txt', 'w')
 	f.close()
 	f = open(outFile, 'w')
 	f.close()
 
-
-#	res = searchDatabase("banana bread", outFile, yummly.api_id, yummly.api_key, 0)
-#	res = searchDatabase("cake", outFile, yummly.api_id, yummly.api_key, 0)
-#	res = searchDatabase("cookies", yummly.api_id, yummly.api_key, 0) #stopped at 20800
-#	res = searchDatabase("loaf", outFile, 0)
+	res = searchDatabase(search, yummly.api_id, yummly.api_key, 0) #stopped at 20800
