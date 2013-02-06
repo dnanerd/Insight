@@ -2,7 +2,6 @@
 
 #import pymongo #==2.4.2
 import json
-import yummly #https://github.com/dgilland/yummly.py
 import sys
 import re
 import unicodedata
@@ -65,9 +64,6 @@ def parseSearchResults(searchResultFile):
 if __name__ == "__main__":
 	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 #pmcon = pymongo.Connection('localhost', port=27017)
-
-	yummly.api_id	=	'5b136dc3'
-	yummly.api_key	=	'65a226f2bf78787e207a98499cbaec5f'
 	searchResultFile	= "recordsdb.cake.flat.txt"
 	f2 = open('errorsrecipes.txt', 'w')
 	f2.close()
@@ -75,3 +71,6 @@ if __name__ == "__main__":
 	f.close()
 
 	parseSearchResults(searchResultFile)
+	
+	db.commit()
+	db.close()

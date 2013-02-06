@@ -213,6 +213,8 @@ if __name__ == "__main__":
 
 	normalizeIngredients()
 
+	db.commit()
+	db.close()
 #	analyzeIngredients()
 
 

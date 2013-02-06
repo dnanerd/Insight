@@ -125,3 +125,5 @@ if __name__ == "__main__":
 
 	standardizeIngredients()
 #	reduceIngredients()
+	db.commit()
+	db.close()
