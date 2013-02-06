@@ -37,12 +37,11 @@ def searchDatabase(query, outFile, yapi_id, yapi_key, startRec=0):
 			print "Found ", len(results["matches"]), " additional records..."
 			counter += len(results["matches"])
 			print len(results["matches"]), " records inserted into database..."
-		except:
-			counter +=1
-		if results:
 			f = open(outFile, 'a')
 			f.write(json.dumps(results, indent=4))
 			f.close()
+		except:
+			counter +=1
 
 
 if __name__ == "__main__":
@@ -57,4 +56,4 @@ if __name__ == "__main__":
 	f = open(outFile, 'w')
 	f.close()
 
-	res = searchDatabase(search, yummly.api_id, yummly.api_key, 0) #stopped at 20800
+	res = searchDatabase(search, outFile, yummly.api_id, yummly.api_key, 0) #stopped at 20800
