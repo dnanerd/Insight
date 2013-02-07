@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
 	yummly.api_id	=	'5b136dc3'
 	yummly.api_key	=	'65a226f2bf78787e207a98499cbaec5f'
-	search = 'cookies'
+	search = 'muffin'
 	outFile	= "recordsdb."+search+".flat.txt"
 	f = open('errors.txt', 'w')
 	f.close()

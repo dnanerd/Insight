@@ -62,6 +62,7 @@ def vectorizeIngredients():
 	ingrHash = defaultdict(tuple)
 	ingredients = set([ingTup[1] for ingTup in ingredientTuples])
 	for rid, ingredient, name in ingredientTuples:
+		
 
 
 def vectorizeRecipes(recipeIDs='', ):
