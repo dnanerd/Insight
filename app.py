@@ -51,7 +51,9 @@ def result():
     search = request.args.getlist('search')[0].decode('string_escape')
     (resultFile, total) = dls.searchRecipes(search)
     search1jsonFile, labels = dlg.getClusters(resultFile)
-    return render_template('resultScreen1.html', query=search, totalresults = total, labels = labels, indices = 0:len(labels) search1jsonFile = "\""+search1jsonFile+"\"")
+
+    sidebar = [("divID"+str(i), l, c) for i, (l,c) in enumerate(labels)]
+    return render_template('resultScreen1.html', query=search, totalresults = total, labels = sidebar, indices = [i for i, n in enumerate(labels)], search1jsonFile = "\""+search1jsonFile+"\"")
 
 
 @app.route('/result2', methods=['POST'])

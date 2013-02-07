@@ -47,7 +47,7 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile = True):
+def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 	#create recipe graph
@@ -160,7 +160,6 @@ def outputScreen1JSON(recipe_components):
 	counts = counts[0:cutoff]
 	labels = [getClusterLabel(recipe_mc.nodes(), recordsHash) for recipe_mc in recipe_components[0:cutoff]]
 	labels = labels[0:cutoff]
-
 	for i,recipe_mc in enumerate(recipe_components):
 		if i<=cutoff:
 			clusternodes = recipe_mc.nodes()
@@ -197,15 +196,6 @@ def getClusters(searchResultFile):
 	G.add_edges_from([(ingrTup[0], ingrHash[ingrTup[1]]) for ingrTup in ingredientTuples])
 	print "recipe/ingredient graph created"
 	
-	#sort ingredient by degree
-	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
-	degrees = [G.degree(rn) for rn in recipeNodes]
-	selectedIngredients = sortedIngrNodes[1:int(np.median(degrees))]
-	#find candidate recipes
-	candidateRecipes = set()
-	for ingr in selectedIngredients:
-		candidateRecipes = set(G.neighbors(ingr)) | candidateRecipes 
-	candidateRecipes = list(candidateRecipes)
 	defaultGFile = 'Grecipesjaccardgraph.txt'
 
 	Grecipes = loadRecipeGraph(recipeNodes, defaultGFile, loadFromFile = True)
@@ -215,90 +205,5 @@ def getClusters(searchResultFile):
 	return outputScreen1JSON(recipe_components)
 
 if __name__ == "__main__":
-
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
-	cursor.execute("""SELECT * FROM units""")
-	print "unit hash created"
-	unitTuple = cursor.fetchall()
-	unitHash = dict(unitTuple)
-	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
-	cursor.execute("""SELECT ingredient, normingredient FROM ingredients""")
-	ingrTuple = cursor.fetchall()
-	ingrHash = dict(ingrTuple)
-	pickle.dump(ingrHash, open("ingrNormHash.pickle", 'w'))
-	cursor.execute("SELECT id, name FROM records")
-	recordTuples = cursor.fetchall()
-	recordsHash = dict(recordTuples)
-	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
-	print "ingredient hash created"
-
-	searchResultFile = 'searchrecordids.txt'
-	records = retrieveSearchRecords(searchResultFile)
-#restrict this for now; later put it up on hadoop
-	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
-	ingredientTuples = cursor.fetchall()
-	recordsHash = dict([(rid, name) for rid, ingr, name in ingredientTuples])
-
-	#create recipe/ingredient graph
-	G = nx.Graph()
-	#add all recipes into graph as nodes
-	recipeNodes = list(set([ingrTup[0] for ingrTup in ingredientTuples]))
-	ingredientNodes = [ingrHash[ingr] for recipeid, ingr, name in ingredientTuples]
-	ingredientNodes = list(set(ingredientNodes))
-	G.add_nodes_from(recipeNodes, type='recipes')
-	G.add_nodes_from(ingredientNodes, type='ingredient')
-	G.add_edges_from([(ingrTup[0], ingrHash[ingrTup[1]]) for ingrTup in ingredientTuples])
-	print "recipe/ingredient graph created"
-	
-	#sort ingredient by degree
-	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
-	degrees = [G.degree(rn) for rn in recipeNodes]
-	selectedIngredients = sortedIngrNodes[1:int(np.median(degrees))]
-
-
-	#find candidate recipes
-	candidateRecipes = set()
-	for ingr in selectedIngredients:
-		candidateRecipes = set(G.neighbors(ingr)) | candidateRecipes 
-	candidateRecipes = list(candidateRecipes)
-	defaultGFile = 'Grecipesjaccardgraph.txt'
-
-
-	Grecipes = loadRecipeGraph(recipeNodes, defaultGFile, loadFromFile = True)
-	
-#	candidateIngredients = list(candidateIngredients)
-
-	#results = mpl.PCA(recipeDF)
-	#recipeEdges = [ [rn1, rn2, Jaccard(G.neighbors(rn1), G.neighbors(rn2))] for rn1 in recipeNodes for rn2 in recipeNodes]
-
-
-	#recipeEdges = [ [rn1, rn2, Jaccard(G.neighbors(rn1), G.neighbors(rn2))] for rn1 in recipeNodes for rn2 in recipeNodes]
-	#Grecipes.add_weighted_edges_from(recipeEdges)
-
-	#Gingredients = nx.Graph()
-	#Gingredients.add_nodes_from(ingredientNodes)
-
-	#find clusters
-	#for each pair of recipes, assign Jaccard index as weight of edge
-
-#	clust_coefficients = nx.clustering(Grecipes)
-
-	recipe_components = nx.connected_component_subgraphs(Grecipes)
-#	outputScreen1JSON(recipe_components, recordsHash)
 	searchResultFile = 'searchrecordids.txt'
 	getClusters(searchResultFile)
-		#	bet_cen = nx.betweenness_centrality(recipe_mc)
-		#	clo_cen = nx.closeness_centrality(recipe_mc)
-		#	eig_cen = nx.eigenvector_centrality(recipe_mc)
-#			rec = [n[1] for n in highest_centrality(eig_cen,10)]
-
-#			getClusterLabel(rec)
-
-#	recipeDF = vectorizeIngredientsFromGraph(G, recipe_components[0].nodes(), ingredientNodes)
-#	recipeDF.ix[rec]
-
-#	recipeDF.to_csv('recipeDF.csv')
-
-#find a way to categorize categories into groups
-#create ingredient-ingredient substitutions

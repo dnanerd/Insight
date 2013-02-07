@@ -20,19 +20,51 @@ import nltk
 import networkx as nx
 
 
+def mysqlify(x):
+	return x.replace("\'","\\\'") 
+
+
 def searchRecipes(query):
-	definedQueries = ['banana bread','cookies','cake']
+	definedQueries = ['banana bread','cookies','cake', 'muffin']
 	searchResultFile = 'searchrecordids.txt'
 
-	if query in definedQueries and os.path.isfile(query.split()[0]+searchResultFile):
-		f = open("recordsdb."+query.split()[0]+".flat.txt",'r')
-		searchRecords = json.load(f.read())
+	if query in definedQueries:
+		db = sql.connect("localhost",'testuser','testpass',"test" )
+		# prepare a cursor object using cursor() method
+		cursor = db.cursor()
+		searchresults = []
+		if os.path.isfile(query.split()[0]+searchResultFile):
+			#just copy the contents of the search result over
+			f = open(query.split()[0]+searchResultFile,'r')
+			recipeids = f.read().split("\n")
+			f.close()
+			searchresults = recipeids
+		else:
+			#create contents of the search result by reading db
+			yummlysearchresult ="recordsdb."+query.split()[0]+".flat.txt"
+			f = open(yummlysearchresult,'r')
+			searchRecords = json.loads(f.read())
+			f.close()
+			#process search result
+			recipeids = [ item["id"] for result in searchRecords for item in result["matches"] if 'id' in item.keys() ]
+			errors = 0
+			for r in recipeids:
+				try:
+					recipeids[recipeids.index(r)] = r.decode('string_escape')
+				except:
+					errors+=1
+					recipeids.remove(r)
+			print errors, " recipes threw and error"
+			searchresults = recipeids
+			f = open(query.split()[0]+searchResultFile,'w')
+			f.write("\n".join(searchresults))
+			f.close()
+		f = open(searchResultFile,'w')
+		f.write("\n".join(searchresults))
 		f.close()
-		recipeids = [item["id"] for result in searchRecords for item in result["matches"] if 'id' in item.keys()]
-		f = open(query.split()[0]+searchResultFile,'w')
-		f.write("\n".join(recipeids))
-		f.close()
-		return (searchResultFile, len(recipeids))
+		db.commit()
+		db.close()
+		return (searchResultFile, len(searchresults))
 	else:
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		# prepare a cursor object using cursor() method
@@ -46,9 +78,9 @@ def searchRecipes(query):
 		f = open(searchResultFile,'w')
 		f.write("\n".join([r[0] for r in records]))
 		f.close()
-
 		db.commit()
 		db.close()
+
 		return (searchResultFile, len(records))
 
 if __name__ == "__main__":
