@@ -21,29 +21,18 @@ import pandas
 from nltk.corpus import wordnet as wn
 
 
-ingrHash = {
-	'vanilla': 'vanilla extract',
-	'White flour': 'flour',
-	'flour for dust': 'flour',
-	'all purpos flour': 'flour',
-	'beat egg': 'egg',
-	'egg egg_yolk': 'egg yolk',
-	'large egg': 'egg',
-	'large egg yolks': 'egg yolk',
-	'egg_yolk': 'egg yolk',
-	'egg yolks': 'egg yolk'
-
-}
 #DESCRIPTION:
 #looks through ingredients list and parses recipe list ingredients
 #into amount, unit, ingredient
-def normalizeIngredients():
-
+def normalizeIngredients(ingrHash):
+	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
+	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	for ingr in ingrHash.keys():
 		cmd = "UPDATE ingredients SET normingredient = \'" + ingrHash[ingr] + "\' WHERE normingredient = \'" + ingr + "\'"
 		cursor.execute(cmd)
 	db.commit()
+	db.close()
 #	cmd = "SELECT ingredient FROM ingredients WHERE normingredient REGEXP \'.*chocolate.*\'"
 #	cursor.execute(cmd)
 #	chocolateIngr = cursor.fetchall()
@@ -122,6 +111,7 @@ def findIngredient(recipeid, ingredientLine):
 #looks through ingredients list and recipe list and parses recipe list ingredients
 #into amount, unit, ingredient
 def analyzeIngredients():
+	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	cursor.execute("""SELECT id, ingredientLine FROM recipes""")
@@ -200,7 +190,8 @@ def analyzeIngredients():
 	idlist = idlist.replace(",","\',\'")
 #create view formatrecipes as select * from bakingrecipes where id not in (select distinct id from bakingrecipes where ingredient= 'NULL' or  unit='NULL');	db.commit()
 #END DEF ANALYZE INGREDIENTS
-
+	db.commit()
+	db.close()
 
 
 if __name__ == "__main__":
@@ -211,7 +202,23 @@ if __name__ == "__main__":
 	unitTuple = cursor.fetchall()
 	unitHash = dict(unitTuple)
 
-	normalizeIngredients()
+
+	ingrHash = {
+		'vanilla': 'vanilla extract',
+		'White flour': 'flour',
+		'flour for dust': 'flour',
+		'all purpos flour': 'flour',
+		'beat egg': 'egg',
+		'egg egg_yolk': 'egg yolk',
+		'large egg': 'egg',
+		'large egg yolks': 'egg yolk',
+		'egg_yolk': 'egg yolk',
+		'egg yolks': 'egg yolk'
+
+	}
+
+
+	normalizeIngredients(ingrHash)
 
 	db.commit()
 	db.close()

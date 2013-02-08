@@ -48,29 +48,34 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile):
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
+def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile, query):
 	#create recipe graph
 	if loadFromFile and os.path.exists(defaultGFile):
+		print "loadRecipeGraph: recipe graph file exists. loading..."
 		Grecipes = pickle.load(open(defaultGFile))
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		return Grecipes
 	else:
 		Grecipes = nx.Graph()
-		print "Adding ", len(recipenodes), " nodes..."
+		print "loadRecipeGraph: Adding ", len(recipenodes), " nodes..."
 		Grecipes.add_nodes_from(recipenodes)
-		print "Retrieving jaccard scores from database..."	
+		print "loadRecipeGraph: Retrieving jaccard scores from database..."	
+		db = sql.connect("localhost",'testuser','testpass',"test" )
 		cursor = db.cursor()
-		cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.5 AND id1 IN (\'" + "\',\'".join(recipenodes) + "\') AND id2 IN (\'" + "\',\'".join(recipenodes) + "\')")
-		jaccardTup = cursor.fetchall()
-		print "Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
+		cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.5") 
+		jaccardAll = cursor.fetchall()
+		jaccardTup = [(id1,id2,jac) for id1,id2,jac in jaccardAll if id1 in recipenodes and id2 in recipenodes]
+		db.close()
+
+		print "loadRecipeGraph: Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
 		if jaccardTup:
 			Grecipes.add_weighted_edges_from(jaccardTup)
-			pickle.dump(Grecipes, open(defaultGFile, 'w'))
+			f = open(defaultGFile, 'w')
+			pickle.dump(Grecipes, f)
+			f.close()
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
+		pickle.dump(Grecipes, open(defaultGFile, 'r'))
 		return Grecipes
-		db.close()
 
 def getClusterLabel(ids, recordsHash):
 	names = [recordsHash[c] for c in ids if c in recordsHash.keys()]
@@ -171,7 +176,7 @@ def getIngredientFrequencies(ids):
 
 def subCluster(component):
 	#do a simple jaccard filter for now; later move on to something more sophisticated
-	Gfiltered = filterRecipeGraph(component, 0.85)
+	Gfiltered = filterRecipeGraph(component, 0.7)
 	recipe_components = nx.connected_component_subgraphs(Gfiltered)
 	return recipe_components
 
@@ -183,9 +188,14 @@ def outputScreen2JSON(recipeClusterList, maxcutoff):
 		counter+=1
 		if counter<=cutoff:
 			recipes = recipecluster.nodes()
+			db = sql.connect("localhost",'testuser','testpass',"test" )
+			cursor=db.cursor()
+			cursor.execute("SELECT id, name, sourceurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\')")
+			links = cursor.fetchall()
+			db.close()
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
-			ingrCounts = getIngredientFrequencies(recipes)
-			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts})
+			ingrCounts = getIngredientFrequencies(recipes)[0:5]
+			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'links': links})
 	return retval
 """
 def clusterVariationsTestDummy():
@@ -213,12 +223,18 @@ def outputScreen1JSON(recipe_components, cutoff):
 	counts = counts[0:cutoff]
 	labels = [getClusterLabel(recipe_mc.nodes(), recordsHash) for recipe_mc in recipe_components[0:cutoff]]
 	labels = labels[0:cutoff]
+
+	labels = []
+
 	for i,recipe_mc in enumerate(recipe_components):
 		if i<=cutoff:
 			clusternodes = recipe_mc.nodes()
 			label = getClusterLabel(clusternodes, recordsHash)
+			while label in labels:
+				label = label+"I"
 			component = {'i':i, 'label':label, 'count':len(clusternodes),'nodes':clusternodes}
 			screen1_components.append(component)
+			labels.append(label)
 	#write json object to file
 	f = open(screen1jsonFile, 'w')
 	f.write(json.dumps(screen1_components))
@@ -228,7 +244,7 @@ def outputScreen1JSON(recipe_components, cutoff):
 
 	return screen1jsonFile, zip(labels, counts)
 
-def getRecipeIngredientGraph(searchResultFile):
+def getRecipeIngredientGraph(searchResultFile, ingrHash):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 	recipeRecords = retrieveSearchRecords(searchResultFile)
@@ -247,9 +263,9 @@ def getRecipeIngredientGraph(searchResultFile):
 	print "recipe/ingredient graph created"
 	db.commit()
 	db.close()
-	return G
+	return (G, ingredientNodes, recipeNodes)
 
-def getClusters(searchResultFile):
+def getClusters(searchResultFile, query):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 	unitHash = pickle.load(open("unitNormHash.pickle"))
@@ -258,10 +274,19 @@ def getClusters(searchResultFile):
 	records = retrieveSearchRecords(searchResultFile)
 #restrict this for now; later put it up on hadoop
 	
-	defaultGFile = 'Grecipesjaccardgraph.txt'
-#	G = getRecipeIngredientGraph(searchResultFile)
-
-	Grecipes = loadRecipeGraph(records, defaultGFile, loadFromFile = True)
+	defaultGFile = query.split()[0]+'Grecipesjaccardgraph.txt'
+#	(G, ingredientNodes, recipeNodes) = getRecipeIngredientGraph(searchResultFile, ingrHash)
+#	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
+#	degrees = [G.degree(rn) for rn in recipeNodes]
+#	mediandegree = np.median(degrees)
+#	medianofmedian = np.percentile(mediandegree, 0.5)
+#	essentialIngredients = [ingr for ingr in sortedIngrNodes if G.degree(ingr)>=medianofmedian]
+#	print "ESSENTIAL INGREDIENTS more than ", medianofmedian," degrees"
+#	print essentialIngredients
+#	essentialIngredients = [ingr for ingr in sortedIngrNodes if G.degree(ingr)<medianofmedian]
+#	print "ESSENTIAL INGREDIENTS less than ", medianofmedian," degrees"
+#	print essentialIngredients
+	Grecipes = loadRecipeGraph(records, defaultGFile, True, query.split()[0])
 
 	recipe_components = nx.connected_component_subgraphs(Grecipes)
 	db.close()
@@ -269,7 +294,8 @@ def getClusters(searchResultFile):
 
 if __name__ == "__main__":
 	searchResultFile = 'searchrecordids.txt'
-	components = getClusters(searchResultFile)
+	query = 'banana'
+	components = getClusters(searchResultFile, query)
 	cutoff = min(len(components), 5)
 	search1jsonFile, labels = outputScreen1JSON(components, cutoff)
 	search2jsonObject = [outputScreen2JSON(subCluster(component), 6) for component in components[0:5]]

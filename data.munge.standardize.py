@@ -81,17 +81,21 @@ def reduceIngredient(ingr,ingrList):
 
 
 def reduceIngredients():
+	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 	cursor.execute("""SELECT DISTINCT normingredient FROM ingredients""")
 	ingredientTuples = cursor.fetchall()
 	ingrList = [ingrTup[0] for ingrTup in ingredientTuples]
 	for ingr in ingrList:
 		reduceIngredient(ingr, ingrList)
+	db.close()
 
 #DESCRIPTION:
 #looks through ingredients list and parses recipe list ingredients
 #into amount, unit, ingredient
 def standardizeIngredients():
+	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
+	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	cursor.execute("""SELECT DISTINCT ingredient FROM ingredients""")
 	ingredientTuples = cursor.fetchall()
@@ -112,6 +116,7 @@ def standardizeIngredients():
 		cmd = "UPDATE ingredients SET normingredient = \'" + mysqlify(ingrNorm) + "\' WHERE ingredient = \'" + mysqlify(ingr) + "\'"
 		cursor.execute(cmd)
 	db.commit()
+	db.close()
 
 
 

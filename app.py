@@ -47,7 +47,7 @@ def search():
 def result():
     search = request.args.getlist('search')[0].decode('string_escape')
     (resultFile, total) = dls.searchRecipes(search)
-    clusters = dlg.getClusters(resultFile)
+    clusters = dlg.getClusters(resultFile, search)
     cutoff = min(5, len(clusters))
     search1jsonFile, labels = dlg.outputScreen1JSON(clusters, cutoff)
 #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
@@ -91,6 +91,6 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.debug = True
     app.run(host='0.0.0.0',port=5000)
-#    app.run(host='192.168.1.28', port=8000)
+#      app.run(host='192.168.1.28', port=8000)
 
     

@@ -30,9 +30,6 @@ def searchRecipes(query):
 	searchResultFile = 'searchrecordids.txt'
 	searchresults = []
 	if query in definedQueries:
-		db = sql.connect("localhost",'testuser','testpass',"test" )
-		# prepare a cursor object using cursor() method
-		cursor = db.cursor()
 		searchresults = []
 		if os.path.isfile(query.split()[0]+searchResultFile):
 			#just copy the contents of the search result over
@@ -63,8 +60,6 @@ def searchRecipes(query):
 		f = open(searchResultFile,'w')
 		f.write("\n".join(searchresults))
 		f.close()
-		db.commit()
-		db.close()
 	else:
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		# prepare a cursor object using cursor() method
@@ -97,9 +92,9 @@ def searchRecipes(query):
 	recordsHash = dict(recordTuples)
 	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
 	print "ingredient hash created"
-
+	db.close()
 	return (searchResultFile, len(searchresults))
 
 if __name__ == "__main__":
 
-	searchRecipes('banana bread')
+	searchRecipes('banana')

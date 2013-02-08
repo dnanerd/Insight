@@ -38,7 +38,11 @@
         margin-bottom: 15px;
         padding: 7px 9px;
       }
-
+      div.box{
+        width: 800px;
+        height: 200px;
+        overflow: scroll;
+      }
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -81,7 +85,8 @@
     <div class="container">
 
 
-      <h3>Your search for "{{query}}" yielded {{totalresults}} recipes.</h3>
+      <h3>Your search for "{{query}}" yielded {{totalresults}} recipes from Yummly. Gah!</h3>
+      <h3>Don't worry. We've organized it for you.<h3>
       <div></div>
       <div class="bs-docs-example">
             <div class="tabbable tabs-left">
@@ -111,8 +116,9 @@
                 <div class="thumbnail">
                   <img src="{{this_box['toprecipeimg']}}" alt="" height="100" width="150">
                   <div class="caption">
-                    <h4>{{this_box['count']}} recipes</h4>
-                    <p>Ingredient List</p>
+                    <h5>{{this_box['count']}} recipes</h5>
+                    <p><a href="#{{this_box['label']}}" class="btn" onclick="showrecipes({{this_box['label']}})">See recipes!</a></p>
+
                     {% for this_ingr_tup in this_box['ingrFreq'] %}
                       {% if this_ingr_tup[1]>0.9 %}
                       <font size=2>{{this_ingr_tup[0]}}</font>
@@ -121,7 +127,6 @@
                       {% endif %}
                     {% endfor %}
 
-                    <p><a href="#{{this_box['label']}}" class="btn" onclick="showrecipes()">See recipes!</a></p>
                   </div>
                 </div>
               </li>
@@ -140,6 +145,12 @@
                 <li><a href="#">&raquo;</a></li>
              </ul>
             </div>
+
+
+<div class="box">           
+  
+</div>
+
 
                 </div>
                 {% endfor %}
@@ -169,7 +180,18 @@
       var obj = $.getJSON(filename, function(json) {
           console.log(json.label); // this will show the info it in firebug console
       });
-
+      function showrecipes(){
+        $('div.box').append(
+            $('<li/>', {
+                'class': 'last_link',
+                html: $('<a/>', {
+                    href: 'https://projects.parc-services.com',
+                    target: '_blank',
+                    text: 'Login'
+                })
+            })
+        );
+      }
  
     </script>
   </body>

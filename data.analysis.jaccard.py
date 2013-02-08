@@ -46,12 +46,12 @@ def calculateJaccardIndices(ingrHash, recipeHash):
 	print "loading jaccard indices for ", len(recipeHash.keys()), " recipes..."
 
 	#load all existing jaccard indices from database
-	cmd = "SELECT * FROM recipejaccard WHERE id1 IN (\'" + "\',\'".join(recipeHash.keys()) + "\') AND id2 IN (\'" + "\',\'".join(recipeHash.keys()) + "\')"
+	cmd = "SELECT id1,id2 FROM recipejaccard WHERE id1 IN (\'" + "\',\'".join(recipeHash.keys()) + "\') AND id2 IN (\'" + "\',\'".join(recipeHash.keys()) + "\')"
 	cursor.execute(cmd)
 	jaccardTuples = cursor.fetchall()
-	jaccardHash = defaultdict(dict)
-	for id1, id2, jaccard in jaccardTuples:
-		jaccardHash[id1][id2]=jaccard
+#	jaccardHash = defaultdict(dict)
+#	for id1, id2, jaccard in jaccardTuples:
+#		jaccardHash[id1][id2]=jaccard
 
 	print "calculating jaccard indices..."
 	for recipe1 in recipeHash.keys():
@@ -64,41 +64,50 @@ def calculateJaccardIndices(ingrHash, recipeHash):
 			if counter2%500==0:
 				print counter2, " 2nd recipes processed."
 			if recipe1==recipe2: continue #skip if comparing to self
-			if recipe1 in recipeHash and recipe2 in recipeHash[recipe1]: continue #skip if already calculated in database
-			if recipe2 in recipeHash and recipe1 in recipeHash[recipe2]: continue #skip if already calculated in database
+			if (recipe1, recipe2) in jaccardTuples: continue
+			if (recipe2, recipe1) in jaccardTuples: continue
+#			if recipe1 in recipeHash and recipe2 in recipeHash[recipe1]: continue #skip if already calculated in database
+#			if recipe2 in recipeHash and recipe1 in recipeHash[recipe2]: continue #skip if already calculated in database
 
 			jaccard = Jaccard(recipeHash[recipe1], recipeHash[recipe2])
 			cmd = "INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES(\'"+mysqlify(recipe1)+"\',\'"+mysqlify(recipe2)+"\',"+str(jaccard)+")"
 			cursor.execute(cmd)
 		db.commit()
-	db.commit()
 	db.close()
 
 if __name__ == "__main__":
-	baseIngredients = ['eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder']
-	pp = pprint.PrettyPrinter(indent=4)
+
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 
 	cursor.execute("""SELECT ingredient, normingredient FROM ingredients""")
 	ingrTuple = cursor.fetchall()
+	db.commit()
+	db.close()
 	ingrHash = dict(ingrTuple)
 	print "ingredient hash created"
 
 	searchResultFile = 'searchrecordids.txt'
 	f = open(searchResultFile, 'r')
 	recipenodes = f.read().split("\n")
-
+	print "searchedrecords loaded"
 	recipeHash = defaultdict()
-	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'" + "\',\'".join(recipenodes) + "\')")
+
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+	cursor.execute("SELECT id, ingredient FROM recipeingredients")
 	ingredientTuples = cursor.fetchall()
-	for recipeid, recipeingr in ingredientTuples:
-		if recipeid in recipeHash.keys():
-			recipeHash[recipeid].append(ingrHash[recipeingr])
-		else:
-			recipeHash[recipeid] = [recipeingr]
 
 	db.commit()
 	db.close()
 	
+	for recipeid, recipeingr in ingredientTuples:
+		if recipeid not in recipenodes: continue
+		if recipeid in recipeHash.keys():
+			try:
+				recipeHash[recipeid].append(ingrHash[recipeingr])
+			except:
+				print "data.analysis.jaccard/main: ",recipeid
+		else:
+			recipeHash[recipeid] = [recipeingr]
 	calculateJaccardIndices(ingrHash, recipeHash)
