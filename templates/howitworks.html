@@ -37,6 +37,15 @@
         margin-bottom: 15px;
         padding: 7px 9px;
       }
+      .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+      }
+
+      .link {
+        stroke: #999;
+        stroke-opacity: .6;
+      }
 
     </style>
     <link href="../static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
@@ -67,7 +76,7 @@
           <a class="brand" href="" >BakeSearch</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="">Search</a></li>
+              <li><a href="search">Search</a></li>
               <li><a href="howitworks">How it works</a></li>
               <li><a href="data">Explore data</a></li>
               <li><a href="contact">Contact</a></li>
@@ -79,45 +88,58 @@
 
     <div class="container">
 
+      <script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
 
- 
+var width = 960,
+    height = 500;
 
-      <h2>Make sense of recipes and bake like a pro.</h2>
-      <p>Recipe search that makes baking easy, not overwhelming.</p>
-       <div class="container">
+var color = d3.scale.category20();
 
-      <form class="form-signin" method= "link" action="result">
-        <div class="input-prepend">
-          <span class="add-on">
-            <i class="icon-search"></i>
-          </span>
-          <input type="search" class="span3" placeholder="Search baking recipes" name="search" id="search"/>
-        </div>
-        <button class="btn btn-large btn-primary" type="submit">Get recipes!</button>
+var force = d3.layout.force()
+    .charge(-120)
+    .linkDistance(30)
+    .size([width, height]);
 
-      </form>
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-    </div> <!-- /container -->
+d3.json("static/miserables.json", function(error, graph) {
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
 
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-    </div> <!-- /container -->
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);
 
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../static/bootstrap/js/jquery.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-transition.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-alert.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-modal.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-dropdown.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-scrollspy.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-tab.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-tooltip.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-popover.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-button.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-collapse.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-carousel.js"></script>
-    <script src="../static/bootstrap/js/bootstrap-typeahead.js"></script>
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+});
+
+</script>
 
   </body>
 </html>

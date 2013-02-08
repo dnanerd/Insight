@@ -53,6 +53,7 @@ def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 	#create recipe graph
 	if loadFromFile and os.path.exists(defaultGFile):
 		Grecipes = pickle.load(open(defaultGFile))
+		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		return Grecipes
 	else:
 		Grecipes = nx.Graph()
@@ -66,6 +67,7 @@ def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 		if jaccardTup:
 			Grecipes.add_weighted_edges_from(jaccardTup)
 			pickle.dump(Grecipes, open(defaultGFile, 'w'))
+		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		return Grecipes
 		db.close()
 
@@ -189,6 +191,7 @@ def getClusters(searchResultFile):
 	G = nx.Graph()
 	#add all recipes into graph as nodes
 	recipeNodes = list(set([ingrTup[0] for ingrTup in ingredientTuples]))
+	print len(recipeNodes)
 	ingredientNodes = [ingrHash[ingr] for recipeid, ingr, name in ingredientTuples]
 	ingredientNodes = list(set(ingredientNodes))
 	G.add_nodes_from(recipeNodes, type='recipes')

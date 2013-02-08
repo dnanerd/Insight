@@ -55,7 +55,8 @@
   </head>
 
 <!--  <body onLoad="setTimeout('delayedRedirect()', 3000)"> -->
-  <body>
+
+
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -64,12 +65,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Project name</a>
+          <a class="brand" href="search">BakeSearch</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li class="active"><a href="search">Search</a></li>
+              <li><a href="howitworks">How it works</a></li>
+              <li><a href="data">Explore data</a></li>
+              <li><a href="contact">Contact</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -77,6 +79,7 @@
     </div>
 
     <div class="container">
+
 
       <h3>Your search for "{{query}}" yielded {{totalresults}} recipes.</h3>
       <div></div>

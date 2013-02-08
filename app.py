@@ -30,16 +30,12 @@ f.close
 
 @app.route('/')
 def index():
-    return render_template('search.html', title="MyTitle")
+    return render_template('search.html')
 
 
-@app.route('/test')
-def test():
-    return render_template('test.html',
-                           my_name="George",
-                           my_locations=filehtml,
-                           )
-
+@app.route('/search')
+def search():
+    return render_template('search.html')
 
 #@app.route('/searching', methods=['GET', 'POST'])
 #def searching():
@@ -56,9 +52,17 @@ def result():
     return render_template('resultScreen1.html', query=search, totalresults = total, labels = sidebar, indices = [i for i, n in enumerate(labels)], search1jsonFile = "\""+search1jsonFile+"\"")
 
 
-@app.route('/result2', methods=['POST'])
-def result2():
+@app.route('/howitworks')
+def howitworks():
+    return render_template('howitworks.html')
+
+@app.route('/data')
+def data():
     return render_template('crossfilter.dummy.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('about.html')
     
 @app.route('/api')
 def api():

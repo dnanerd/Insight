@@ -1,7 +1,6 @@
 #!/Users/apple/Desktop/Work/Scripts/Insight/venv/bin/python
 
 #import pymongo #==2.4.2
-import datashopper, datamaid
 import json
 import sys
 import re
@@ -83,8 +82,12 @@ if __name__ == "__main__":
 	ingrHash = dict(ingrTuple)
 	print "ingredient hash created"
 
+	searchResultFile = 'searchrecordids.txt'
+	f = open(searchResultFile, 'r')
+	recipenodes = f.read().split("\n")
+
 	recipeHash = defaultdict()
-	cursor.execute("""SELECT id, ingredient FROM recipeingredients WHERE id REGEXP \'.*banana.*bread.*\'""")
+	cursor.execute("SELECT id, ingredient FROM recipejaccard WHERE id IN (\'" + "\',\'".join(recipenodes) + "\')")
 	ingredientTuples = cursor.fetchall()
 	for recipeid, recipeingr in ingredientTuples:
 		if recipeid in recipeHash.keys():

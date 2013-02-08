@@ -9,16 +9,9 @@
 
     <!-- Le styles -->
     <link href="../static/bootstrap/css/bootstrap.css" rel="stylesheet">
-
     <style>
-      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700);
-
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-        font-family: "Helvetica Neue";
-        margin: 40px auto;
-        width: 960px;
-        min-height: 2000px;
       }
       .form-signin {
         max-width: 300px;
@@ -45,132 +38,6 @@
         padding: 7px 9px;
       }
 
-      #body {
-        position: relative;
-      }
-
-      footer {
-        padding: 2em 0 1em 0;
-        font-size: 12px;
-      }
-
-      h1 {
-        font-size: 96px;
-        margin-top: .3em;
-        margin-bottom: 0;
-      }
-
-      h1 + h2 {
-        margin-top: 0;
-      }
-
-      h2 {
-        font-weight: 400;
-        font-size: 28px;
-      }
-
-      h1, h2 {
-        font-family: "Yanone Kaffeesatz";
-        text-rendering: optimizeLegibility;
-      }
-
-      #body > p {
-        line-height: 1.5em;
-        width: 640px;
-        text-rendering: optimizeLegibility;
-      }
-
-      #charts {
-        padding: 10px 0;
-      }
-
-      .chart {
-        display: inline-block;
-        height: 151px;
-        margin-bottom: 20px;
-      }
-
-      .reset {
-        padding-left: 1em;
-        font-size: smaller;
-        color: #ccc;
-      }
-
-      .background.bar {
-        fill: #ccc;
-      }
-
-      .foreground.bar {
-        fill: steelblue;
-      }
-
-      .axis path, .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-      }
-
-      .axis text {
-        font: 10px sans-serif;
-      }
-
-      .brush rect.extent {
-        fill: steelblue;
-        fill-opacity: .125;
-      }
-
-      .brush .resize path {
-        fill: #eee;
-        stroke: #666;
-      }
-
-      #ingredient-chart {
-        width: 280px;
-      }
-
-      #flight-list {
-        min-height: 300px;
-      }
-
-      #flight-list .date,
-      #flight-list .day {
-        margin-bottom: .4em;
-      }
-
-      #flight-list .flight {
-        line-height: 1.5em;
-        background: #eee;
-        width: 640px;
-        margin-bottom: 1px;
-      }
-
-      #flight-list .time {
-        color: #999;
-      }
-
-      #flight-list .flight div {
-        display: inline-block;
-        width: 100px;
-      }
-
-      #flight-list div.distance,
-      #flight-list div.delay {
-        width: 160px;
-        padding-right: 10px;
-        text-align: right;
-      }
-
-      #flight-list .early {
-        color: green;
-      }
-
-      aside {
-        position: absolute;
-        left: 740px;
-        font-size: smaller;
-        width: 220px;
-      }
-
     </style>
     <link href="../static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -188,7 +55,6 @@
   </head>
 
   <body>
-
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -213,57 +79,16 @@
 
     <div class="container">
 
- 
 
+ 	<p>
+ 		<br>
+    	Diane Wu
+    	<br>
+    	diwu@stanford.edu
 
-<div id="body">
+    </p>
 
-
-<div id="charts">
-  <div id="ingredient-chart" class="chart">
-    <div class="title">Bananas</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">Eggs</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">all-purpose flour</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">sugar</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">baking soda</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">baking powder</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">buttermilk</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">whole wheat flour</div>
-  </div>
-  <div id="ingredient-chart" class="chart">
-    <div class="title">butter</div>
-  </div>
-  <aside id="totals"><span id="active">-</span> of <span id="total">-</span> recipes selected.</aside>
-
-  <p> 60% of selected recipes also included "milk". Add ingredient?
-
-<div id="lists">
-  <div id="flight-list" class="list"></div>
-</div>
-
-</div>
-
-
-
-</div>
-
-    <script src="/static/js/crossfilter.v1.min.js"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script type="text/javascript" src="/static/js/crossfilter.dummy.js"></script>
+    </div> <!-- /container -->
 
     <!-- Le javascript
     ================================================== -->
