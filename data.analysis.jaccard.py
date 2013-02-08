@@ -39,18 +39,21 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def findJaccardIndices(ingrHash, recipeHash):
+def calculateJaccardIndices(ingrHash, recipeHash):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 	counter = 0
-	print "finding jaccard indices for ", len(recipeHash.keys()), " recipes..."
-	cmd = "SELECT * FROM recipejaccard"
+	print "loading jaccard indices for ", len(recipeHash.keys()), " recipes..."
+
+	#load all existing jaccard indices from database
+	cmd = "SELECT * FROM recipejaccard WHERE id1 IN (\'" + "\',\'".join(recipeHash.keys()) + "\') AND id2 IN (\'" + "\',\'".join(recipeHash.keys()) + "\')"
 	cursor.execute(cmd)
 	jaccardTuples = cursor.fetchall()
-	jaccardHash = {}
-	for jTup in jaccardTuples:
-		jaccardHash[jTup[0]][jTup[1]]=jTup[2]
+	jaccardHash = defaultdict(dict)
+	for id1, id2, jaccard in jaccardTuples:
+		jaccardHash[id1][id2]=jaccard
 
+	print "calculating jaccard indices..."
 	for recipe1 in recipeHash.keys():
 		counter+=1
 		if counter%10==0:
@@ -87,7 +90,7 @@ if __name__ == "__main__":
 	recipenodes = f.read().split("\n")
 
 	recipeHash = defaultdict()
-	cursor.execute("SELECT id, ingredient FROM recipejaccard WHERE id IN (\'" + "\',\'".join(recipenodes) + "\')")
+	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'" + "\',\'".join(recipenodes) + "\')")
 	ingredientTuples = cursor.fetchall()
 	for recipeid, recipeingr in ingredientTuples:
 		if recipeid in recipeHash.keys():
@@ -98,4 +101,4 @@ if __name__ == "__main__":
 	db.commit()
 	db.close()
 	
-	findJaccardIndices(ingrHash, recipeHash)
+	calculateJaccardIndices(ingrHash, recipeHash)

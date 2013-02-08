@@ -19,6 +19,7 @@ import nltk
 from nltk.collocations import *
 import pickle
 import networkx as nx
+import random
 #import matplotlib as mpl
 
 
@@ -72,7 +73,8 @@ def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 		db.close()
 
 def getClusterLabel(ids, recordsHash):
-	names = [recordsHash[c] for c in ids]
+	names = [recordsHash[c] for c in ids if c in recordsHash.keys()]
+	print len(names), " out of ", len(ids), " recipes found in name translation"
 	namesl = ".".join(names)
 	#	namesl = re.sub(r'[-_]*',' ',namesl)
 	tokens = nltk.WordPunctTokenizer().tokenize(namesl)
@@ -136,6 +138,56 @@ def filterRecipeGraph(Gref, cutoff):
 			Gnew.remove_edge(id1,id2)
 	return Gnew
 
+
+
+def getTopRatedRecipe(recipes):
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+	#select the top races recipes in this list
+	defaultimgurl = "static/imgunavailable.png"
+	cmd = "SELECT id, rating, imgurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') AND rating >= (SELECT max(rating) AS rating FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\'))"
+	cursor.execute(cmd) 
+	toprecords = cursor.fetchall()
+	allrecords = [(rid, imgurl) for rid, rating, imgurl in toprecords]
+	imagerecords = [(rid, imgurl) for rid, rating, imgurl in toprecords if imgurl!='NULL']
+	if len(imagerecords)>0:
+		return random.choice(imagerecords)
+	else:
+		return (random.choice(allrecords)[0], defaultimgurl)
+
+def getIngredientFrequencies(ids):
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+
+	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'"+"\',\'".join(ids)+"\')")
+	recipeTuples = cursor.fetchall()
+	ingredients = [ ingr for rid, ingr in recipeTuples]
+	fd = list(nltk.FreqDist(ingredients).items())
+	retval = [(rid, float(int(100*float(freq)/float(len(ids))))/float(100)) for (rid, freq) in fd]
+
+	db.close()
+	return retval
+
+
+def subCluster(component):
+	#do a simple jaccard filter for now; later move on to something more sophisticated
+	Gfiltered = filterRecipeGraph(component, 0.85)
+	recipe_components = nx.connected_component_subgraphs(Gfiltered)
+	return recipe_components
+
+def outputScreen2JSON(recipeClusterList, maxcutoff):
+	cutoff = min(maxcutoff, len(recipeClusterList))
+	retval = []
+	counter=0
+	for recipecluster in recipeClusterList[0:cutoff]:
+		counter+=1
+		if counter<=cutoff:
+			recipes = recipecluster.nodes()
+			toprecipeimg = getTopRatedRecipe(recipes)[1]
+			ingrCounts = getIngredientFrequencies(recipes)
+			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts})
+	return retval
+"""
 def clusterVariationsTestDummy():
 	jaccards = [edge['weight'] for id1, id2, edge in Grecipes.edges(data=True)]
 	percentile = 97
@@ -151,13 +203,12 @@ def clusterVariationsTestDummy():
 		print "cluster "+str(i) + ": " + str(len(clusternodes)) + " nodes"
 		label = getClusterLabel([recordsHash[c] for c in clusternodes])
 		print "LABEL: ", label
+"""
 
-
-def outputScreen1JSON(recipe_components):
+def outputScreen1JSON(recipe_components, cutoff):
 	screen1jsonFile = "static/outputScreen1JSON.txt"
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
 	screen1_components = []
-	cutoff = min(5, len(recipe_components))
 	counts = [ len(recipe_mc.nodes()) for recipe_mc in recipe_components[0:cutoff]]
 	counts = counts[0:cutoff]
 	labels = [getClusterLabel(recipe_mc.nodes(), recordsHash) for recipe_mc in recipe_components[0:cutoff]]
@@ -177,15 +228,11 @@ def outputScreen1JSON(recipe_components):
 
 	return screen1jsonFile, zip(labels, counts)
 
-def getClusters(searchResultFile):
+def getRecipeIngredientGraph(searchResultFile):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
-	unitHash = pickle.load(open("unitNormHash.pickle"))
-	ingrHash = pickle.load(open("ingrNormHash.pickle"))
-
-	records = retrieveSearchRecords(searchResultFile)
-#restrict this for now; later put it up on hadoop
-	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
+	recipeRecords = retrieveSearchRecords(searchResultFile)
+	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(recipeRecords)+"\')")
 	ingredientTuples = cursor.fetchall()
 	#create recipe/ingredient graph
 	G = nx.Graph()
@@ -198,15 +245,32 @@ def getClusters(searchResultFile):
 	G.add_nodes_from(ingredientNodes, type='ingredient')
 	G.add_edges_from([(ingrTup[0], ingrHash[ingrTup[1]]) for ingrTup in ingredientTuples])
 	print "recipe/ingredient graph created"
+	db.commit()
+	db.close()
+	return G
+
+def getClusters(searchResultFile):
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+	unitHash = pickle.load(open("unitNormHash.pickle"))
+	ingrHash = pickle.load(open("ingrNormHash.pickle"))
+
+	records = retrieveSearchRecords(searchResultFile)
+#restrict this for now; later put it up on hadoop
 	
 	defaultGFile = 'Grecipesjaccardgraph.txt'
+#	G = getRecipeIngredientGraph(searchResultFile)
 
-	Grecipes = loadRecipeGraph(recipeNodes, defaultGFile, loadFromFile = True)
+	Grecipes = loadRecipeGraph(records, defaultGFile, loadFromFile = True)
 
 	recipe_components = nx.connected_component_subgraphs(Grecipes)
 	db.close()
-	return outputScreen1JSON(recipe_components)
+	return recipe_components
 
 if __name__ == "__main__":
 	searchResultFile = 'searchrecordids.txt'
-	getClusters(searchResultFile)
+	components = getClusters(searchResultFile)
+	cutoff = min(len(components), 5)
+	search1jsonFile, labels = outputScreen1JSON(components, cutoff)
+	search2jsonObject = [outputScreen2JSON(subCluster(component), 6) for component in components[0:5]]
+

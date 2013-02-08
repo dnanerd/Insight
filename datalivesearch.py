@@ -17,6 +17,7 @@ import numpy as np
 import scipy as sp
 import pandas as pd
 import nltk
+import pickle
 import networkx as nx
 
 
@@ -27,7 +28,7 @@ def mysqlify(x):
 def searchRecipes(query):
 	definedQueries = ['banana bread','cookies','cake', 'muffin']
 	searchResultFile = 'searchrecordids.txt'
-
+	searchresults = []
 	if query in definedQueries:
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		# prepare a cursor object using cursor() method
@@ -64,7 +65,6 @@ def searchRecipes(query):
 		f.close()
 		db.commit()
 		db.close()
-		return (searchResultFile, len(searchresults))
 	else:
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		# prepare a cursor object using cursor() method
@@ -81,7 +81,24 @@ def searchRecipes(query):
 		db.commit()
 		db.close()
 
-		return (searchResultFile, len(records))
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+	cursor.execute("""SELECT * FROM units""")
+	print "unit hash created"
+	unitTuple = cursor.fetchall()
+	unitHash = dict(unitTuple)
+	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
+	cursor.execute("""SELECT ingredient, normingredient FROM ingredients""")
+	ingrTuple = cursor.fetchall()
+	ingrHash = dict(ingrTuple)
+	pickle.dump(ingrHash, open("ingrNormHash.pickle", 'w'))
+	cursor.execute("SELECT id, name FROM records")
+	recordTuples = cursor.fetchall()
+	recordsHash = dict(recordTuples)
+	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
+	print "ingredient hash created"
+
+	return (searchResultFile, len(searchresults))
 
 if __name__ == "__main__":
 

@@ -57,11 +57,12 @@ def parseRecipeResults(recipeResultsFile):
 if __name__ == "__main__":
 	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 #pmcon = pymongo.Connection('localhost', port=27017)
-	recipeFile = "recipedb."+search+".flat.txt"
+	search ="cookies"
+	recipeFile = "recipedb."+search.split()[0]+".flat.txt"
 	f2 = open('errorsrecipes.txt', 'w')
 	f2.close()
 	f = open('errors.txt', 'w')
 
-	parseRecipeFiles(recipeFile)
+	parseRecipeResults(recipeFile)
 	db.commit()
 	db.close()
