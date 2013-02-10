@@ -127,7 +127,7 @@ def vectorizeIngredients():
 	searchResultFile = 'searchrecordids.txt'
 	records = retrieveSearchRecords(searchResultFile)
 	#restrict this for now; later put it up on hadoop
-	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
+	cursor.execute("SELECT records.id, normingredient, name FROM normrecipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(records)+"\')")
 	ingredientTuples = cursor.fetchall()
 
 #	return pd.DataFrame(zip(*ingredientTuples),index=['id','ingredient', 'name']).T
@@ -164,7 +164,7 @@ def getIngredientFrequencies(ids):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 
-	cursor.execute("SELECT id, ingredient FROM recipeingredients WHERE id IN (\'"+"\',\'".join(ids)+"\')")
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients WHERE id IN (\'"+"\',\'".join(ids)+"\')")
 	recipeTuples = cursor.fetchall()
 	ingredients = [ ingr for rid, ingr in recipeTuples]
 	fd = list(nltk.FreqDist(ingredients).items())
@@ -173,6 +173,7 @@ def getIngredientFrequencies(ids):
 	db.close()
 	return retval
 
+def filterIngredientLists(listOfIngredientLists)
 
 def subCluster(component):
 	#do a simple jaccard filter for now; later move on to something more sophisticated
@@ -244,22 +245,22 @@ def outputScreen1JSON(recipe_components, cutoff):
 
 	return screen1jsonFile, zip(labels, counts)
 
-def getRecipeIngredientGraph(searchResultFile, ingrHash):
+def getRecipeIngredientGraph(searchResultFile):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 	recipeRecords = retrieveSearchRecords(searchResultFile)
-	cursor.execute("SELECT records.id, ingredient, name FROM recipeingredients, records WHERE recipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(recipeRecords)+"\')")
+	cursor.execute("SELECT records.id, normingredient, name FROM normrecipeingredients, records WHERE normrecipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(recipeRecords)+"\')")
 	ingredientTuples = cursor.fetchall()
 	#create recipe/ingredient graph
 	G = nx.Graph()
 	#add all recipes into graph as nodes
 	recipeNodes = list(set([ingrTup[0] for ingrTup in ingredientTuples]))
 	print len(recipeNodes)
-	ingredientNodes = [ingrHash[ingr] for recipeid, ingr, name in ingredientTuples]
+	ingredientNodes = [ingr for recipeid, ingr, name in ingredientTuples]
 	ingredientNodes = list(set(ingredientNodes))
 	G.add_nodes_from(recipeNodes, type='recipes')
 	G.add_nodes_from(ingredientNodes, type='ingredient')
-	G.add_edges_from([(ingrTup[0], ingrHash[ingrTup[1]]) for ingrTup in ingredientTuples])
+	G.add_edges_from([(ingrTup[0], ingrTup[1]) for ingrTup in ingredientTuples])
 	print "recipe/ingredient graph created"
 	db.commit()
 	db.close()
@@ -269,13 +270,12 @@ def getClusters(searchResultFile, query):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 	unitHash = pickle.load(open("unitNormHash.pickle"))
-	ingrHash = pickle.load(open("ingrNormHash.pickle"))
 
 	records = retrieveSearchRecords(searchResultFile)
 #restrict this for now; later put it up on hadoop
 	
 	defaultGFile = query.split()[0]+'Grecipesjaccardgraph.txt'
-#	(G, ingredientNodes, recipeNodes) = getRecipeIngredientGraph(searchResultFile, ingrHash)
+#	(G, ingredientNodes, recipeNodes) = getRecipeIngredientGraph(searchResultFile)
 #	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
 #	degrees = [G.degree(rn) for rn in recipeNodes]
 #	mediandegree = np.median(degrees)

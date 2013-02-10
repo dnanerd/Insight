@@ -83,15 +83,10 @@ def searchRecipes(query):
 	unitTuple = cursor.fetchall()
 	unitHash = dict(unitTuple)
 	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
-	cursor.execute("""SELECT ingredient, normingredient FROM ingredients""")
-	ingrTuple = cursor.fetchall()
-	ingrHash = dict(ingrTuple)
-	pickle.dump(ingrHash, open("ingrNormHash.pickle", 'w'))
 	cursor.execute("SELECT id, name FROM records")
 	recordTuples = cursor.fetchall()
 	recordsHash = dict(recordTuples)
 	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
-	print "ingredient hash created"
 	db.close()
 	return (searchResultFile, len(searchresults))
 

@@ -39,7 +39,7 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def calculateJaccardIndices(ingrHash, recipeHash):
+def calculateJaccardIndices(recipeHash):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 	counter = 0
@@ -80,13 +80,6 @@ if __name__ == "__main__":
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 
-	cursor.execute("""SELECT ingredient, normingredient FROM ingredients""")
-	ingrTuple = cursor.fetchall()
-	db.commit()
-	db.close()
-	ingrHash = dict(ingrTuple)
-	print "ingredient hash created"
-
 	searchResultFile = 'searchrecordids.txt'
 	f = open(searchResultFile, 'r')
 	recipenodes = f.read().split("\n")
@@ -95,7 +88,7 @@ if __name__ == "__main__":
 
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
-	cursor.execute("SELECT id, ingredient FROM recipeingredients")
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
 	ingredientTuples = cursor.fetchall()
 
 	db.commit()
@@ -105,9 +98,9 @@ if __name__ == "__main__":
 		if recipeid not in recipenodes: continue
 		if recipeid in recipeHash.keys():
 			try:
-				recipeHash[recipeid].append(ingrHash[recipeingr])
+				recipeHash[recipeid].append(recipeingr)
 			except:
 				print "data.analysis.jaccard/main: ",recipeid
 		else:
 			recipeHash[recipeid] = [recipeingr]
-	calculateJaccardIndices(ingrHash, recipeHash)
+	calculateJaccardIndices(recipeHash)

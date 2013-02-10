@@ -100,24 +100,23 @@
                 {% endfor %}
               </ul>
               <div class="tab-content">
-             {% for this_label in labels %}
+               {% for this_label in labels %}
                   {% if this_label == labels[0] %}
-                <div class="tab-pane active" id="{{this_label[0]}}">
-                {% else %}
-                <div class="tab-pane" id="{{this_label[0]}}">
+                    <div class="tab-pane active" id="{{this_label[0]}}">
+                  {% else %}
+                    <div class="tab-pane" id="{{this_label[0]}}">
                   {% endif %}
+                  <div class="row-fluid">
+                    <ul class="thumbnails">
 
-        <div class="row-fluid">
-            <ul class="thumbnails">
-
-             {% for this_box in this_label[3] %}
+                   {% for this_box in this_label[3] %}
                   
-              <li class="span2">
-                <div class="thumbnail">
-                  <img src="{{this_box['toprecipeimg']}}" alt="" height="100" width="150">
-                  <div class="caption">
+                    <li class="span2"> 
+                    <div class="thumbnail">
+                    <img src="{{this_box['toprecipeimg']}}" alt="" height="100" width="150">
+                    <div class="caption">
                     <h5>{{this_box['count']}} recipes</h5>
-                    <p><a href="#{{this_box['label']}}" class="btn" onclick="showrecipes({{this_box['label']}})">See recipes!</a></p>
+                    <p><a href="#{{this_box['label']}}" class="btn {{this_box['label']}}">See recipes!</a></p>
 
                     {% for this_ingr_tup in this_box['ingrFreq'] %}
                       {% if this_ingr_tup[1]>0.9 %}
@@ -134,21 +133,10 @@
               {% endfor %}
             </ul>
           </div>
-          <div class="pagination pagination-centered">
-              <ul>
-                <li class="disabled"><a href="#">&laquo;</a></li>
-                <li class="active"><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><a href="#">5</a></li>
-                <li><a href="#">&raquo;</a></li>
-             </ul>
-            </div>
-
-
-<div class="box">           
   
+
+<div class="hide url{{labels[0][0]['label']}}">           
+    Best recipe here!
 </div>
 
 
@@ -180,6 +168,15 @@
       var obj = $.getJSON(filename, function(json) {
           console.log(json.label); // this will show the info it in firebug console
       });
+
+      $(document).ready(function() {
+   // put all your jQuery goodness in here.
+        $('.btn box1').onClick(
+          $('.urlbox1').removeClass('hide'))
+
+       });
+
+
       function showrecipes(){
         $('div.box').append(
             $('<li/>', {

@@ -194,6 +194,7 @@ def analyzeIngredients():
 	db.close()
 
 
+
 if __name__ == "__main__":
 	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 	# prepare a cursor object using cursor() method
@@ -213,13 +214,24 @@ if __name__ == "__main__":
 		'large egg': 'egg',
 		'large egg yolks': 'egg yolk',
 		'egg_yolk': 'egg yolk',
-		'egg yolks': 'egg yolk'
-
+		'egg yolks': 'egg yolk',
+		'melt butter': 'butter',
+		'chop nut': 'nut',
+		'pure vanilla extract': 'vanilla extract',
+		'granulate sugar': 'sugar',
+		'all purpose flour': 'flour',
+		'warm water': 'water',
+		'fast rising yeast': 'yeast',
+		'chop pecan': 'pecan',
+		'cocoa powder': 'cocoa'
 	}
 
 
 	normalizeIngredients(ingrHash)
-
+	cmd = "DROP VIEW IF EXISTS normrecipeingredients"
+	cursor.execute(cmd)
+	cmd = "CREATE VIEW normrecipeingredients AS SELECT id, recipeingredients.ingredient as ingredient, normingredient from recipeingredients, ingredients where ingredients.ingredient = recipeingredients.ingredient"
+	cursor.execute(cmd)
 	db.commit()
 	db.close()
 #	analyzeIngredients()
