@@ -140,7 +140,7 @@ def getRecipeIngredientGraph(defaultGFile, loadFromFile):
 		print "recipe/ingredient graph created"
 
 		f = open(defaultGFile, 'w')
-		pickle.dump(Gingredients, f)
+		pickle.dump(G, f)
 		f.close()
 		return G
 
