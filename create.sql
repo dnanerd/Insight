@@ -53,6 +53,14 @@ CREATE TABLE recipejaccard (
   PRIMARY KEY (id1, id2)
 ) ENGINE = InnoDB;
 
+
+CREATE TABLE ingredientjaccard (
+  ingr1 char(200) NOT NULL,
+  ingr2 char(200) NOT NULL,
+  jaccard float,
+  PRIMARY KEY (ingr1, ingr2)
+) ENGINE = InnoDB;
+
 #########################
 # Create ingredients table
 #########################

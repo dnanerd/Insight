@@ -21,6 +21,8 @@ import pickle
 import networkx as nx
 import random
 #import matplotlib as mpl
+import dataliveloadgraph
+import datalivesearch
 
 
 try:
@@ -76,6 +78,38 @@ def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile, query):
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		pickle.dump(Grecipes, open(defaultGFile, 'r'))
 		return Grecipes
+
+def loadIngredientGraph(defaultGFile, loadFromFile):
+
+	if loadFromFile and os.path.exists(defaultGFile):
+		print "loadIngredientGraph: ingredient graph file exists. loading..."
+		Gingredients = pickle.load(open(defaultGFile))
+		print len(Gingredients.nodes()), " nodes in jaccard graph"
+		return Gingredients
+	else:
+		db = sql.connect("localhost",'testuser','testpass',"test" )
+		cursor = db.cursor()
+		cmd = "SELECT DISTINCT normingredient FROM normrecipeingredients"
+		ingredientTup = cursor.execute(cmd)
+
+		Gingredients = nx.Graph()
+		print "loadIngredientGraph: Adding ", len(ingredientnodes), " nodes..."
+		Gingredients.add_nodes_from(ingredientnodes)
+		print "loadIngredientGraph: Retrieving jaccard scores from database..."	
+		cursor.execute("SELECT * FROM ingredientjaccard") 
+		jaccardTup = cursor.fetchall()
+		db.close()
+
+		print "loadIngredientGraph: Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
+		if jaccardTup:
+			Gingredients.add_weighted_edges_from(jaccardTup)
+			f = open(defaultGFile, 'w')
+			pickle.dump(Gingredients, f)
+			f.close()
+		print len(Gingredients.nodes()), " nodes in jaccard graph"
+		pickle.dump(Gingredients, open(defaultGFile, 'r'))
+		return Gingredients
+
 
 def getClusterLabel(ids, recordsHash):
 	names = [recordsHash[c] for c in ids if c in recordsHash.keys()]
@@ -173,7 +207,8 @@ def getIngredientFrequencies(ids):
 	db.close()
 	return retval
 
-def filterIngredientLists(listOfIngredientLists)
+def findEnrichedIngredients():
+	print "baisc recipe list; array of enriched ingredients"
 
 def subCluster(component):
 	#do a simple jaccard filter for now; later move on to something more sophisticated
@@ -195,8 +230,10 @@ def outputScreen2JSON(recipeClusterList, maxcutoff):
 			links = cursor.fetchall()
 			db.close()
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
-			ingrCounts = getIngredientFrequencies(recipes)[0:5]
+			ingrCounts = getIngredientFrequencies(recipes)
 			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'links': links})
+	baseIngredients = retval[0]
+
 	return retval
 """
 def clusterVariationsTestDummy():
@@ -293,8 +330,6 @@ def getClusters(searchResultFile, query):
 	return recipe_components
 
 if __name__ == "__main__":
-	searchResultFile = 'searchrecordids.txt'
-	query = 'banana'
 	components = getClusters(searchResultFile, query)
 	cutoff = min(len(components), 5)
 	search1jsonFile, labels = outputScreen1JSON(components, cutoff)

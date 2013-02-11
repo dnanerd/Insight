@@ -29,6 +29,9 @@ f.close
 
 
 
+def loadData():
+
+
 @app.route('/')
 def index():
     return render_template('search.html')
@@ -46,7 +49,9 @@ def search():
 @app.route('/result', methods=['GET', 'POST'])
 def result():
     search = request.args.getlist('search')[0].decode('string_escape')
-    (resultFile, total) = dls.searchRecipes(search)
+    resultFile = "searchrecordids.txt"
+    results = dls.searchRecipes(search, resultFile)
+    total = len(results)
     clusters = dlg.getClusters(resultFile, search)
     cutoff = min(5, len(clusters))
     search1jsonFile, labels = dlg.outputScreen1JSON(clusters, cutoff)

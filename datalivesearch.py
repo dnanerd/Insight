@@ -25,15 +25,14 @@ def mysqlify(x):
 	return x.replace("\'","\\\'") 
 
 
-def searchRecipes(query):
+def searchRecipes(query, searchResultFile):
 	definedQueries = ['banana bread','cookies','cake', 'muffin']
-	searchResultFile = 'searchrecordids.txt'
 	searchresults = []
 	if query in definedQueries:
 		searchresults = []
-		if os.path.isfile(query.split()[0]+searchResultFile):
+		if os.path.isfile(query.split()[0]+"searchrecordids.txt"):
 			#just copy the contents of the search result over
-			f = open(query.split()[0]+searchResultFile,'r')
+			f = open(query.split()[0]+"searchrecordids.txt",'r')
 			recipeids = f.read().split("\n")
 			f.close()
 			searchresults = recipeids
@@ -54,7 +53,7 @@ def searchRecipes(query):
 					recipeids.remove(r)
 			print errors, " recipes threw and error"
 			searchresults = recipeids
-			f = open(query.split()[0]+searchResultFile,'w')
+			f = open(query.split()[0]+"searchrecordids.txt",'w')
 			f.write("\n".join(searchresults))
 			f.close()
 		f = open(searchResultFile,'w')
@@ -71,25 +70,13 @@ def searchRecipes(query):
 		records = cursor.fetchall()
 		print "printing results"
 		f = open(searchResultFile,'w')
-		f.write("\n".join([r[0] for r in records]))
+		searchresults = [r[0] for r in records]
+		f.write("\n".join(searchresults))
 		f.close()
 		db.commit()
 		db.close()
-
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
-	cursor.execute("""SELECT * FROM units""")
-	print "unit hash created"
-	unitTuple = cursor.fetchall()
-	unitHash = dict(unitTuple)
-	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
-	cursor.execute("SELECT id, name FROM records")
-	recordTuples = cursor.fetchall()
-	recordsHash = dict(recordTuples)
-	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
-	db.close()
-	return (searchResultFile, len(searchresults))
+	return searchresults
 
 if __name__ == "__main__":
-
-	searchRecipes('banana')
+	tempsearchfile = 'searchrecordids.txt'
+	searchresults = searchRecipes('banana', tempsearchfile)

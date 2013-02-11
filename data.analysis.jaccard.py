@@ -16,6 +16,7 @@ import numpy as np
 import scipy as sp
 import pandas as pd
 import nltk
+import pickle
 
 
 def mysqlify(x):
@@ -39,52 +40,10 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def calculateJaccardIndices(recipeHash):
+def calculateRecipeJaccardIndices(recipeids):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
-	counter = 0
-	print "loading jaccard indices for ", len(recipeHash.keys()), " recipes..."
-
-	#load all existing jaccard indices from database
-	cmd = "SELECT id1,id2 FROM recipejaccard WHERE id1 IN (\'" + "\',\'".join(recipeHash.keys()) + "\') AND id2 IN (\'" + "\',\'".join(recipeHash.keys()) + "\')"
-	cursor.execute(cmd)
-	jaccardTuples = cursor.fetchall()
-#	jaccardHash = defaultdict(dict)
-#	for id1, id2, jaccard in jaccardTuples:
-#		jaccardHash[id1][id2]=jaccard
-
-	print "calculating jaccard indices..."
-	for recipe1 in recipeHash.keys():
-		counter+=1
-		if counter%10==0:
-			print counter, " 1st recipes processed."
-		counter2 = 0
-		for recipe2 in recipeHash.keys():
-			counter2+=1
-			if counter2%500==0:
-				print counter2, " 2nd recipes processed."
-			if recipe1==recipe2: continue #skip if comparing to self
-			if (recipe1, recipe2) in jaccardTuples: continue
-			if (recipe2, recipe1) in jaccardTuples: continue
-#			if recipe1 in recipeHash and recipe2 in recipeHash[recipe1]: continue #skip if already calculated in database
-#			if recipe2 in recipeHash and recipe1 in recipeHash[recipe2]: continue #skip if already calculated in database
-
-			jaccard = Jaccard(recipeHash[recipe1], recipeHash[recipe2])
-			cmd = "INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES(\'"+mysqlify(recipe1)+"\',\'"+mysqlify(recipe2)+"\',"+str(jaccard)+")"
-			cursor.execute(cmd)
-		db.commit()
-	db.close()
-
-if __name__ == "__main__":
-
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
-
-	searchResultFile = 'searchrecordids.txt'
-	f = open(searchResultFile, 'r')
-	recipenodes = f.read().split("\n")
-	print "searchedrecords loaded"
-	recipeHash = defaultdict()
+	recipeToIngredientHash = defaultdict()
 
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
@@ -95,12 +54,100 @@ if __name__ == "__main__":
 	db.close()
 	
 	for recipeid, recipeingr in ingredientTuples:
-		if recipeid not in recipenodes: continue
-		if recipeid in recipeHash.keys():
+		if recipeid not in recipeids: continue
+		if recipeid in recipeToIngredientHash.keys():
 			try:
-				recipeHash[recipeid].append(recipeingr)
+				recipeToIngredientHash[recipeid].append(recipeingr)
 			except:
 				print "data.analysis.jaccard/main: ",recipeid
 		else:
-			recipeHash[recipeid] = [recipeingr]
-	calculateJaccardIndices(recipeHash)
+			recipeToIngredientHash[recipeid] = [recipeingr]
+
+
+
+	counter = 0
+	print "loading jaccard indices for ", len(recipeToIngredientHash.keys()), " recipes..."
+
+	#load all existing jaccard indices from database
+	cmd = "SELECT id1,id2 FROM recipejaccard WHERE id1 IN (\'" + "\',\'".join(recipeToIngredientHash.keys()) + "\') AND id2 IN (\'" + "\',\'".join(recipeToIngredientHash.keys()) + "\')"
+	cursor.execute(cmd)
+	jaccardTuples = cursor.fetchall()
+#	jaccardHash = defaultdict(dict)
+#	for id1, id2, jaccard in jaccardTuples:
+#		jaccardHash[id1][id2]=jaccard
+
+	print "calculating jaccard indices..."
+	for recipe1 in recipeToIngredientHash.keys():
+		counter+=1
+		if counter%10==0:
+			print counter, " 1st recipes processed."
+		counter2 = 0
+		for recipe2 in recipeToIngredientHash.keys():
+			counter2+=1
+			if counter2%500==0:
+				print counter2, " 2nd recipes processed."
+			if recipe1==recipe2: continue #skip if comparing to self
+			if (recipe1, recipe2) in jaccardTuples: continue
+			if (recipe2, recipe1) in jaccardTuples: continue
+#			if recipe1 in recipeToIngredientHash and recipe2 in recipeToIngredientHash[recipe1]: continue #skip if already calculated in database
+#			if recipe2 in recipeToIngredientHash and recipe1 in recipeToIngredientHash[recipe2]: continue #skip if already calculated in database
+
+			jaccard = Jaccard(recipeToIngredientHash[recipe1], recipeToIngredientHash[recipe2])
+			cmd = "INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES(\'"+mysqlify(recipe1)+"\',\'"+mysqlify(recipe2)+"\',"+str(jaccard)+")"
+			cursor.execute(cmd)
+		db.commit()
+	db.close()
+
+def calculateIngredientJaccardIndices():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+	counter = 0
+	print "loading ingredients..."
+
+	cmd = "SELECT id, normingredient FROM normrecipeingredients"
+	#load all existing jaccard indices from database
+	cursor.execute(cmd)
+	recipeTuples = cursor.fetchall()
+	ingrHash = defaultdict(list)
+#	jaccardHash = defaultdict(dict)
+#	for id1, id2, jaccard in jaccardTuples:
+#		jaccardHash[id1][id2]=jaccard
+	for rid, ingr in recipeTuples:
+		ingrHash[ingr].append(rid)
+
+	cmd = "SELECT ingr1,ingr2 FROM ingredientjaccard"
+	cursor.execute(cmd)
+	jaccardTuples = cursor.fetchall()
+	db.close()
+
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+
+	print "calculating jaccard indices for ingredients..."
+	for ingr1 in ingrHash.keys():
+		counter+=1
+		if counter%100==0:
+			print counter, " 1st ingredients processed."
+		for ingr2 in ingrHash.keys():
+			if ingr1==ingr2: continue #skip if comparing to self
+			if (ingr1, ingr2) in jaccardTuples: continue
+			if (ingr2, ingr1) in jaccardTuples: continue
+			jaccard = Jaccard(ingrHash[ingr1], ingrHash[ingr2])
+			cmd = "INSERT IGNORE INTO ingredientjaccard(ingr1,ingr2, jaccard) VALUES(\'"+mysqlify(ingr1)+"\',\'"+mysqlify(ingr2)+"\',"+str(jaccard)+")"
+			cursor.execute(cmd)
+		db.commit() 	
+	db.close()
+	pickle.dump(ingrHash, open("ingredientjaccard.pickle", 'w'))
+
+
+if __name__ == "__main__":
+
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+
+	searchResultFile = 'searchrecordids.txt'
+	f = open(searchResultFile, 'r')
+	recipenodes = f.read().split("\n")
+	print "searchedrecords loaded"
+#	calculateRecipeJaccardIndices(recipenodes)
+	calculateIngredientJaccardIndices()
