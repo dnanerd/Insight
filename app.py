@@ -8,6 +8,7 @@ from flask import render_template
 from flask import jsonify
 from flask import url_for
 from flask import request
+import dataliveloadgraph as dll
 import datalivesearch as dls
 import datalivegraphcluster as dlg
 import networkx as nx
@@ -27,9 +28,10 @@ for l in f:
     filehtml.append(l)
 f.close
 
+(unitHash, recipeNameHash, G, Grecipes) = dll.loadApp()
 
 
-def loadData():
+#def loadData():
 
 
 @app.route('/')
@@ -52,7 +54,8 @@ def result():
     resultFile = "searchrecordids.txt"
     results = dls.searchRecipes(search, resultFile)
     total = len(results)
-    clusters = dlg.getClusters(resultFile, search)
+    (searchG, searchGrecipes) = dls.filterGraphByRecipeID(G, Grecipes, results)
+    clusters = dlg.getClusters(searchGrecipes)
     cutoff = min(5, len(clusters))
     search1jsonFile, labels = dlg.outputScreen1JSON(clusters, cutoff)
 #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]

@@ -19,7 +19,7 @@ import pandas as pd
 import nltk
 import pickle
 import networkx as nx
-
+import dataliveloadgraph
 
 def mysqlify(x):
 	return x.replace("\'","\\\'") 
@@ -77,6 +77,13 @@ def searchRecipes(query, searchResultFile):
 		db.close()
 	return searchresults
 
+def filterGraphByRecipeID(G, Grecipes, nodes):
+	searchGrecipes = nx.subgraph(Grecipes, nodes)
+	ingrNodes = list(set([b for n in searchGrecipes.nodes() for b in G.neighbors(n)]))
+	searchG = nx.subgraph(G, nodes.extend(ingrNodes))
+	return (searchG, searchGrecipes)
+
 if __name__ == "__main__":
 	tempsearchfile = 'searchrecordids.txt'
-	searchresults = searchRecipes('banana', tempsearchfile)
+	searchresults = searchRecipes('banana bread', tempsearchfile)
+	(searchG, searchGrecipes) = filterGraphByRecipeID(G, Grecipes, searchresults)

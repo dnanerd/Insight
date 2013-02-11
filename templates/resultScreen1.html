@@ -135,7 +135,7 @@
           </div>
   
 
-<div class="hide url{{labels[0][0]['label']}}">           
+<div class="hide apple url{{labels[0][0]['label']}}">           
     Best recipe here!
 </div>
 
@@ -171,10 +171,12 @@
 
       $(document).ready(function() {
    // put all your jQuery goodness in here.
-        $('.btn box1').onClick(
-          $('.urlbox1').removeClass('hide'))
+        $('.btn box1').click(function(){
 
-       });
+          $('.urlbox1').removeClass('hide'))
+ 
+         });
+    });
 
 
       function showrecipes(){

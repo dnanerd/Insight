@@ -43,7 +43,7 @@ def highest_centrality(cent_dict, n=1):
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
 
-def createRecipeGraph(recipenodes, defaultGFile, loadFromFile):
+def createRecipeGraph(defaultGFile, loadFromFile):
 	#create recipe graph
 	if loadFromFile and os.path.exists(defaultGFile):
 		print "loadRecipeGraph: recipe graph file exists. loading..."
@@ -59,13 +59,14 @@ def createRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 		jaccardTup = cursor.fetchall()
 		cursor.execute("SELECT DISTINCT id1 FROM recipejaccard WHERE jaccard>0.5") 
 		id1Tup = cursor.fetchall()
+		recipenodes1 = set([id1[0] for id1 in id1Tup])
+
 		cursor.execute("SELECT DISTINCT id2 FROM recipejaccard WHERE jaccard>0.5") 
 		id2Tup = cursor.fetchall()
+		recipenodes2 = set([id2[0] for id2 in id2Tup])
 		db.close()
 
-		recipenodes = [id1 for id1 in id1Tup]
-		recipenodes = recipenodes.extend([id1 for id2 in id2Tup])
-		recipenodes = list(set(recipenodes))
+		recipenodes = list(recipenodes1 | recipenodes2)
 
 		print "loadRecipeGraph: Adding ", len(recipenodes), " nodes..."
 		Grecipes.add_nodes_from(recipenodes)
@@ -77,7 +78,6 @@ def createRecipeGraph(recipenodes, defaultGFile, loadFromFile):
 			pickle.dump(Grecipes, f)
 			f.close()
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
-		pickle.dump(Grecipes, open(defaultGFile, 'r'))
 		return Grecipes
 
 def createIngredientGraph(defaultGFile, loadFromFile):
@@ -110,7 +110,6 @@ def createIngredientGraph(defaultGFile, loadFromFile):
 			pickle.dump(Gingredients, f)
 			f.close()
 		print len(Gingredients.nodes()), " nodes in jaccard graph"
-		pickle.dump(Gingredients, open(defaultGFile, 'r'))
 		return Gingredients
 
 
@@ -144,8 +143,34 @@ def getRecipeIngredientGraph(defaultGFile, loadFromFile):
 		f.close()
 		return G
 
-def writeIngredientGraphJSON(Gingredients, G):
-	print "test"
+def loadApp():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+	cursor.execute("""SELECT * FROM units""")
+	print "unit hash created"
+	unitTuple = cursor.fetchall()
+	unitHash = dict(unitTuple)
+	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
+	cursor.execute("SELECT id, name FROM records")
+	recordTuples = cursor.fetchall()
+	recordsHash = dict(recordTuples)
+	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
+	db.close()
+
+
+	defaultGFile = "Gjaccard.pickle"
+	defaultGrecipesFile = "Grecipesjaccard.pickle"
+	defaultGingredientsFile = "Gingredientsjaccard.pickle"
+
+	print "Retrieving recipe-ingredient graph..."
+	G = getRecipeIngredientGraph(defaultGFile, True)
+#	print "Retrieving ingredient graph..."
+#	Gingredients = createIngredientGraph(defaultGingredientsFile, False)
+	print "Retrieving recipe graph..."
+	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
+
+	print "Done loading."
+	return (unitHash, recordsHash, G, Grecipes)	
 
 if __name__ == "__main__":
 
@@ -168,10 +193,10 @@ if __name__ == "__main__":
 	defaultGingredientsFile = "Gingredientsjaccard.pickle"
 
 	print "Retrieving recipe-ingredient graph..."
-	G = getRecipeIngredientGraph(defaultGFile, False)
+	G = getRecipeIngredientGraph(defaultGFile, True)
 #	print "Retrieving ingredient graph..."
 #	Gingredients = createIngredientGraph(defaultGingredientsFile, False)
 	print "Retrieving recipe graph..."
-	Grecipes = createRecipeGraph(defaultGrecipesFile, False)
+	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
 #	writeIngredientGraphJSON(Gingredients, G)
 

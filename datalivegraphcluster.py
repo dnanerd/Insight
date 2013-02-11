@@ -19,6 +19,7 @@ import nltk
 from nltk.collocations import *
 import pickle
 import networkx as nx
+#import community
 import random
 #import matplotlib as mpl
 import dataliveloadgraph
@@ -194,20 +195,21 @@ def getTopRatedRecipe(recipes):
 	else:
 		return (random.choice(allrecords)[0], defaultimgurl)
 
-def getIngredientFrequencies(ids):
+def getIngredientFrequencies(rids):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 
-	cursor.execute("SELECT id, normingredient FROM normrecipeingredients WHERE id IN (\'"+"\',\'".join(ids)+"\')")
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients WHERE id IN (\'"+"\',\'".join(rids)+"\')")
 	recipeTuples = cursor.fetchall()
 	ingredients = [ ingr for rid, ingr in recipeTuples]
 	fd = list(nltk.FreqDist(ingredients).items())
-	retval = [(rid, float(int(100*float(freq)/float(len(ids))))/float(100)) for (rid, freq) in fd]
+	retval = [(ingr, float(int(100*float(freq)/float(len(rids))))/float(100)) for (ingr, freq) in fd]
 
 	db.close()
 	return retval
 
-def findEnrichedIngredients():
+def findEnrichedIngredients(listOfIngrCounts):
+
 	print "baisc recipe list; array of enriched ingredients"
 
 def subCluster(component):
@@ -235,23 +237,6 @@ def outputScreen2JSON(recipeClusterList, maxcutoff):
 	baseIngredients = retval[0]
 
 	return retval
-"""
-def clusterVariationsTestDummy():
-	jaccards = [edge['weight'] for id1, id2, edge in Grecipes.edges(data=True)]
-	percentile = 97
-	jcutoff = np.percentile(jaccards, percentile)
-	print "The " + str(percentile) + "th percentile jaccard cutoff is ", str(jcutoff), ". Setting cutoff there."
-	Gfilter = filterRecipeGraph(Grecipes, jcutoff)
-	recipe_components = nx.connected_component_subgraphs(Gfilter)
-	for i,recipe_mc in enumerate(recipe_components):
-		if i>5: break
-		clusternodes = recipe_mc.nodes()
-	#	print recipe_mc.nodes()
-#		if (float(len(clusternodes))/float(len(recipeNodes))) >0.01:
-		print "cluster "+str(i) + ": " + str(len(clusternodes)) + " nodes"
-		label = getClusterLabel([recordsHash[c] for c in clusternodes])
-		print "LABEL: ", label
-"""
 
 def outputScreen1JSON(recipe_components, cutoff):
 	screen1jsonFile = "static/outputScreen1JSON.txt"
@@ -282,55 +267,17 @@ def outputScreen1JSON(recipe_components, cutoff):
 
 	return screen1jsonFile, zip(labels, counts)
 
-def getRecipeIngredientGraph(searchResultFile):
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor=db.cursor()
-	recipeRecords = retrieveSearchRecords(searchResultFile)
-	cursor.execute("SELECT records.id, normingredient, name FROM normrecipeingredients, records WHERE normrecipeingredients.id=records.id AND records.id IN (\'"+"\',\'".join(recipeRecords)+"\')")
-	ingredientTuples = cursor.fetchall()
-	#create recipe/ingredient graph
-	G = nx.Graph()
-	#add all recipes into graph as nodes
-	recipeNodes = list(set([ingrTup[0] for ingrTup in ingredientTuples]))
-	print len(recipeNodes)
-	ingredientNodes = [ingr for recipeid, ingr, name in ingredientTuples]
-	ingredientNodes = list(set(ingredientNodes))
-	G.add_nodes_from(recipeNodes, type='recipes')
-	G.add_nodes_from(ingredientNodes, type='ingredient')
-	G.add_edges_from([(ingrTup[0], ingrTup[1]) for ingrTup in ingredientTuples])
-	print "recipe/ingredient graph created"
-	db.commit()
-	db.close()
-	return (G, ingredientNodes, recipeNodes)
-
-def getClusters(searchResultFile, query):
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor=db.cursor()
-	unitHash = pickle.load(open("unitNormHash.pickle"))
-
-	records = retrieveSearchRecords(searchResultFile)
-#restrict this for now; later put it up on hadoop
-	
-	defaultGFile = query.split()[0]+'Grecipesjaccardgraph.txt'
-#	(G, ingredientNodes, recipeNodes) = getRecipeIngredientGraph(searchResultFile)
-#	sortedIngrNodes = sorted(ingredientNodes, key= lambda ingr:G.degree(ingr), reverse=True)
-#	degrees = [G.degree(rn) for rn in recipeNodes]
-#	mediandegree = np.median(degrees)
-#	medianofmedian = np.percentile(mediandegree, 0.5)
-#	essentialIngredients = [ingr for ingr in sortedIngrNodes if G.degree(ingr)>=medianofmedian]
-#	print "ESSENTIAL INGREDIENTS more than ", medianofmedian," degrees"
-#	print essentialIngredients
-#	essentialIngredients = [ingr for ingr in sortedIngrNodes if G.degree(ingr)<medianofmedian]
-#	print "ESSENTIAL INGREDIENTS less than ", medianofmedian," degrees"
-#	print essentialIngredients
-	Grecipes = loadRecipeGraph(records, defaultGFile, True, query.split()[0])
-
-	recipe_components = nx.connected_component_subgraphs(Grecipes)
-	db.close()
+def getClusters(searchGrecipes):
+	recipe_components = nx.connected_component_subgraphs(searchGrecipes)
 	return recipe_components
 
+def getPartitions(searchGrecipes):
+	partition = community.best_partition(searchGrecipes)
+	return partition
+
 if __name__ == "__main__":
-	components = getClusters(searchResultFile, query)
+	components = getClusters(searchGrecipes)
+
 	cutoff = min(len(components), 5)
 	search1jsonFile, labels = outputScreen1JSON(components, cutoff)
 	search2jsonObject = [outputScreen2JSON(subCluster(component), 6) for component in components[0:5]]
