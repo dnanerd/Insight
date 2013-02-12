@@ -80,7 +80,7 @@ def createRecipeGraph(defaultGFile, loadFromFile):
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		return Grecipes
 
-def createIngredientGraph(defaultGFile, loadFromFile):
+def createIngredientGraph(G, defaultGFile, loadFromFile):
 
 	if loadFromFile and os.path.exists(defaultGFile):
 		print "loadIngredientGraph: ingredient graph file exists. loading..."
@@ -95,20 +95,19 @@ def createIngredientGraph(defaultGFile, loadFromFile):
 		ingredientTuples = cursor.fetchall()
 		ingredientnodes = [ingrTup[0] for ingrTup in ingredientTuples]
 
-		Gingredients = nx.Graph()
+		Gingredients = nx.MultiGraph()
 		print "loadIngredientGraph: Adding ", len(ingredientnodes), " nodes..."
 		Gingredients.add_nodes_from(ingredientnodes)
-		print "loadIngredientGraph: Retrieving jaccard scores from database..."	
-		cursor.execute("SELECT * FROM ingredientjaccard WHERE jaccard>0") 
-		jaccardTup = cursor.fetchall()
-		db.close()
 
-		print "loadIngredientGraph: Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
-		if jaccardTup:
-			Gingredients.add_weighted_edges_from(jaccardTup)
-			f = open(defaultGFile, 'w')
-			pickle.dump(Gingredients, f)
-			f.close()
+		for i, ingr1 in enumerate(ingredientnodes):
+			for j, ingr2 in enumerate(ingredientnodes):
+				if i>=j: continue
+				recipesInCommon = list(set(G.neighbors(ingr1)) & set(G.neighbors(ingr2)))
+				for recipe in recipesInCommon:
+					Gingredients.add_edge(ingr1,ingr2, key=recipe)				
+		f = open(defaultGFile, 'w')
+		pickle.dump(Gingredients, f)
+		f.close()
 		print len(Gingredients.nodes()), " nodes in jaccard graph"
 		return Gingredients
 
@@ -165,12 +164,13 @@ def loadApp():
 	print "Retrieving recipe-ingredient graph..."
 	G = getRecipeIngredientGraph(defaultGFile, True)
 #	print "Retrieving ingredient graph..."
-#	Gingredients = createIngredientGraph(defaultGingredientsFile, False)
+	Gingredients = G
+#	Gingredients = createIngredientGraph(G, defaultGingredientsFile, True)
 	print "Retrieving recipe graph..."
 	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
 
 	print "Done loading."
-	return (unitHash, recordsHash, G, Grecipes)	
+	return (unitHash, recordsHash, G, Grecipes, Gingredients)	
 
 if __name__ == "__main__":
 
@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	print "Retrieving recipe-ingredient graph..."
 	G = getRecipeIngredientGraph(defaultGFile, True)
 #	print "Retrieving ingredient graph..."
-#	Gingredients = createIngredientGraph(defaultGingredientsFile, False)
+	Gingredients = createIngredientGraph(G, defaultGingredientsFile, False)
 	print "Retrieving recipe graph..."
 	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
 #	writeIngredientGraphJSON(Gingredients, G)

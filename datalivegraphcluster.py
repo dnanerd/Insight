@@ -19,8 +19,9 @@ import nltk
 from nltk.collocations import *
 import pickle
 import networkx as nx
-#import community
+import community
 import random
+import math
 #import matplotlib as mpl
 import dataliveloadgraph
 import datalivesearch
@@ -208,9 +209,19 @@ def getIngredientFrequencies(rids):
 	db.close()
 	return retval
 
-def findEnrichedIngredients(listOfIngrCounts):
+def findEnrichedIngredients(baseFrequency, sampleFrequency):
+	baseDict = dict(baseFrequency)
+	sampleDict = dict(sampleFrequency)
+	smoothing = 0.05
+	ingredients = list(set([ingr for ingr, freq in baseFrequency if freq>0]) | set([ingr for ingr, freq in sampleFrequency if freq>0]))
+	ingrDiff = {}
+	for ingr in ingredients:
+		sampfreq = basefreq = smoothing
+		if ingr in sampleDict: sampfreq+=sampleDict[ingr]
+		if ingr in baseDict: basefreq+=baseDict[ingr]
 
-	print "baisc recipe list; array of enriched ingredients"
+		ingrDiff[ingr] = math.log((sampfreq+smoothing)/(basefreq+smoothing), 2)
+	return sorted(ingrDiff.iteritems(), key=lambda tup: tup[1], reverse=True)
 
 def subCluster(component):
 	#do a simple jaccard filter for now; later move on to something more sophisticated
@@ -233,8 +244,13 @@ def outputScreen2JSON(recipeClusterList, maxcutoff):
 			db.close()
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
 			ingrCounts = getIngredientFrequencies(recipes)
-			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'links': links})
-	baseIngredients = retval[0]
+			enrichment = []
+			if counter>1:
+				logRatios = findEnrichedIngredients(retval[0]['ingrFreq'], ingrCounts)
+				enrichment = [(ingr, log) for ingr, log in logRatios if math.fabs(log)>=2]
+				if len(enrichment)>5:
+					enrichment = enrichment[0:5]
+			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'links': links})
 
 	return retval
 
@@ -273,12 +289,25 @@ def getClusters(searchGrecipes):
 
 def getPartitions(searchGrecipes):
 	partition = community.best_partition(searchGrecipes)
-	return partition
+	partitionArray = defaultdict(list)
+	for k, v in partition.iteritems():
+		partitionArray[v].append(k)
+	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
+	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
+	return components
+
+def subPartitions(component):
+	Gfiltered = filterRecipeGraph(component, 0.7)
+	partition = community.best_partition(searchGrecipes)
+	partitionArray = defaultdict(list)
+	for k, v in partition.iteritems():
+		partitionArray[v].append(k)
+	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
+	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
+	return sortedPartitions
 
 if __name__ == "__main__":
-	components = getClusters(searchGrecipes)
-
 	cutoff = min(len(components), 5)
 	search1jsonFile, labels = outputScreen1JSON(components, cutoff)
-	search2jsonObject = [outputScreen2JSON(subCluster(component), 6) for component in components[0:5]]
+	search2jsonObject = [outputScreen2JSON(subPartitions(component), 6) for component in components[0:5]]
 

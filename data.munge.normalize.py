@@ -224,6 +224,11 @@ if __name__ == "__main__":
 		'fast rising yeast': 'yeast',
 		'chop pecan': 'pecan',
 		'cocoa powder': 'cocoa'
+		'mashed banana': 'banana'
+		'White sugar': 'sugar'
+		'soften butter': 'butter'
+		'vegetable oil': 'oil'
+		'canola oil': 'oil'
 	}
 
 

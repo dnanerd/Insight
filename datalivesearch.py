@@ -77,13 +77,28 @@ def searchRecipes(query, searchResultFile):
 		db.close()
 	return searchresults
 
-def filterGraphByRecipeID(G, Grecipes, nodes):
+def filterGraphByRecipeID(G, Grecipes, Gingredients, nodes):
+	recipe_to_remove = [ n for n in Grecipes.nodes() if n not in nodes]	
 	searchGrecipes = nx.subgraph(Grecipes, nodes)
+	searchGrecipes.remove_nodes_from(recipe_to_remove)
+
 	ingrNodes = list(set([b for n in searchGrecipes.nodes() for b in G.neighbors(n)]))
+	ingr_to_remove = [ n for n in Gingredients.nodes() if n not in ingrNodes]
+	searchGingredients = Gingredients
+#	searchGingredients = nx.subgraph(Gingredients, ingrNodes)
+#	searchGingredients.remove_nodes_from(ingr_to_remove)
+#	edges = searchGingredients.edges(keys=True)
+#	edges_to_remove = [(ingr1, ingr2, recipe) for (ingr1, ingr2, recipe) in edges if recipe in recipe_to_remove]
+#	searchGingredients.remove_edge_from(edges_to_remove)
+
 	searchG = nx.subgraph(G, nodes.extend(ingrNodes))
-	return (searchG, searchGrecipes)
+	searchG.remove_nodes_from(recipe_to_remove)
+	searchG.remove_nodes_from(ingr_to_remove)
+
+	return (searchG, searchGrecipes, searchGingredients)
+
 
 if __name__ == "__main__":
 	tempsearchfile = 'searchrecordids.txt'
-	searchresults = searchRecipes('banana bread', tempsearchfile)
-	(searchG, searchGrecipes) = filterGraphByRecipeID(G, Grecipes, searchresults)
+	searchresults = searchRecipes('cookies', tempsearchfile)
+	(searchG, searchGrecipes, searchGingredients) = filterGraphByRecipeID(G, Grecipes, Gingredients, searchresults)

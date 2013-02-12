@@ -28,7 +28,7 @@ for l in f:
     filehtml.append(l)
 f.close
 
-(unitHash, recipeNameHash, G, Grecipes) = dll.loadApp()
+(unitHash, recipeNameHash, G, Grecipes, Gingredients) = dll.loadApp()
 
 
 #def loadData():
@@ -54,12 +54,13 @@ def result():
     resultFile = "searchrecordids.txt"
     results = dls.searchRecipes(search, resultFile)
     total = len(results)
-    (searchG, searchGrecipes) = dls.filterGraphByRecipeID(G, Grecipes, results)
-    clusters = dlg.getClusters(searchGrecipes)
+    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
+#    clusters = dlg.getClusters(searchGrecipes)
+    clusters = dlg.getPartitions(searchGrecipes)
     cutoff = min(5, len(clusters))
     search1jsonFile, labels = dlg.outputScreen1JSON(clusters, cutoff)
 #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
-    cutoff2=6
+    cutoff2=4
     sidebar = [("divID"+str(i), l, c, dlg.outputScreen2JSON(dlg.subCluster(clusters[i]), cutoff2)) for i, (l,c) in enumerate(labels)]
 
     return render_template('resultScreen1.html', query=search, totalresults = total, labels = sidebar, indices = [i for i, n in enumerate(labels)], search1jsonFile = "\""+search1jsonFile+"\"")
