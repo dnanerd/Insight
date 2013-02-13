@@ -39,15 +39,6 @@ def index():
     return render_template('search.html')
 
 
-@app.route('/search')
-def search():
-    return render_template('search.html')
-
-#@app.route('/searching', methods=['GET', 'POST'])
-#def searching():
-#    return render_template('searching.html', query = request.args.getList('search'))
-
-
 @app.route('/result', methods=['GET', 'POST'])
 def result():
     search = request.args.getlist('search')[0].decode('string_escape')
@@ -57,13 +48,51 @@ def result():
     (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
 #    clusters = dlg.getClusters(searchGrecipes)
     clusters = dlg.getPartitions(searchGrecipes)
-    cutoff = min(5, len(clusters))
-    search1jsonFile, labels = dlg.outputScreen1JSON(clusters, cutoff)
+    cutoff = min(1000, len(clusters))
 #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
-    cutoff2=4
-    sidebar = [("divID"+str(i), l, c, dlg.outputScreen2JSON(dlg.subCluster(clusters[i]), cutoff2)) for i, (l,c) in enumerate(labels)]
+    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff)
+#    searchjsonObject2 = {'object':'searchjsonObject'}
+    searchjsonObject2 = [tup[2] for tup in searchjsonObject[0]['links']]
 
-    return render_template('resultScreen1.html', query=search, totalresults = total, labels = sidebar, indices = [i for i, n in enumerate(labels)], search1jsonFile = "\""+search1jsonFile+"\"")
+    return render_template('infinite_scroll.html', query=search, totalresults = total, searchJSON=searchjsonObject, searchJSON2=searchjsonObject2)
+
+@app.route('/recipes', methods=['GET', 'POST'])
+def recipes():
+    print 'asjdaksjdalskdjaslkdj'
+    print request.form
+    print request.form.getlist("links[]")
+    print '----'
+    print dict(request.form)
+
+
+    links = request.form.getlist('links[]')
+    for link in links:
+        print "links is", link
+    return render_template('test.html', links = links)
+
+@app.route('/search')
+def search():
+    return render_template('search.html')
+
+#@app.route('/searching', methods=['GET', 'POST'])
+#def searching():
+#    return render_template('searching.html', query = request.args.getList('search'))
+
+
+@app.route('/oldresult', methods=['GET', 'POST'])
+def oldresult():
+    search = request.args.getlist('search')[0].decode('string_escape')
+    resultFile = "searchrecordids.txt"
+    results = dls.searchRecipes(search, resultFile)
+    total = len(results)
+    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
+#    clusters = dlg.getClusters(searchGrecipes)
+    clusters = dlg.getPartitions(searchGrecipes)
+    cutoff = min(5, len(clusters))
+#    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
+    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff)
+
+    return render_template('resultScreen1.html', query=search, totalresults = total, searchJSON=searchjsonObject)
 
 
 @app.route('/howitworks')

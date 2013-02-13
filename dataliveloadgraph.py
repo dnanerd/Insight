@@ -44,6 +44,7 @@ def highest_centrality(cent_dict, n=1):
      return tuple(reversed(cent_items[0:n]))
 
 def createRecipeGraph(defaultGFile, loadFromFile):
+	jlimit = 0.2
 	#create recipe graph
 	if loadFromFile and os.path.exists(defaultGFile):
 		print "loadRecipeGraph: recipe graph file exists. loading..."
@@ -55,13 +56,13 @@ def createRecipeGraph(defaultGFile, loadFromFile):
 		print "loadRecipeGraph: Retrieving jaccard scores from database..."	
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		cursor = db.cursor()
-		cursor.execute("SELECT id1, id2, jaccard FROM recipejaccard WHERE jaccard>0.5") 
+		cursor.execute("SELECT id1, id2, jaccard FROM recipejaccard WHERE jaccard>"+str(jlimit)) 
 		jaccardTup = cursor.fetchall()
-		cursor.execute("SELECT DISTINCT id1 FROM recipejaccard WHERE jaccard>0.5") 
+		cursor.execute("SELECT DISTINCT id1 FROM recipejaccard WHERE jaccard>"+str(jlimit) )
 		id1Tup = cursor.fetchall()
 		recipenodes1 = set([id1[0] for id1 in id1Tup])
 
-		cursor.execute("SELECT DISTINCT id2 FROM recipejaccard WHERE jaccard>0.5") 
+		cursor.execute("SELECT DISTINCT id2 FROM recipejaccard WHERE jaccard>"+str(jlimit) )
 		id2Tup = cursor.fetchall()
 		recipenodes2 = set([id2[0] for id2 in id2Tup])
 		db.close()
@@ -195,7 +196,7 @@ if __name__ == "__main__":
 	print "Retrieving recipe-ingredient graph..."
 	G = getRecipeIngredientGraph(defaultGFile, True)
 #	print "Retrieving ingredient graph..."
-	Gingredients = createIngredientGraph(G, defaultGingredientsFile, False)
+	Gingredients = createIngredientGraph(G, defaultGingredientsFile, True)
 	print "Retrieving recipe graph..."
 	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
 #	writeIngredientGraphJSON(Gingredients, G)

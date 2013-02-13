@@ -12,7 +12,6 @@
     <link href="../static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <style>
       body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
       .form-signin {
         max-width: 300px;
@@ -85,34 +84,14 @@
     <div class="container">
 
 
-      <h3>Your search for "{{query}}" yielded {{totalresults}} recipes from Yummly. Gah!</h3>
-      <h3>Don't worry. We've organized it for you.<h3>
-      <div></div>
-      <div class="bs-docs-example">
-            <div class="tabbable tabs-left">
-              <ul class="nav nav-tabs">
-                {% for this_label in labels %}
-                  {% if this_label == labels[0] %}
-                     <li class="active"><a href="#{{this_label[0]}}" data-toggle="tab">{{this_label[1]}} ({{this_label[2]}} results)</a></li>
-                  {% else %}
-                      <li><a href="#{{this_label[0]}}" data-toggle="tab">{{this_label[1]}} ({{this_label[2]}} results)</a></li>
-                  {% endif %}
-                {% endfor %}
-              </ul>
-              <div class="tab-content">
-               {% for this_label in labels %}
-                  {% if this_label == labels[0] %}
-                    <div class="tab-pane active" id="{{this_label[0]}}">
-                  {% else %}
-                    <div class="tab-pane" id="{{this_label[0]}}">
-                  {% endif %}
-                  <div class="row-fluid">
-                    <ul class="thumbnails">
-
-                   {% for this_box in this_label[3] %}                  
-                    <li class="span3"> 
-                    <div class="thumbnail">
-                    <img src="{{this_box['toprecipeimg']}}" alt="" height="150" width="200">
+      <h3><br><br><br><br>Your search for "{{query}}" yielded {{totalresults}} recipes from Yummly. Gah!
+      <br>Don't worry. We've organized it for you.<h3>
+      <div>
+        {% for thisCluster in searchJSON %}
+          {% if thisCluster == searchJSON[0] %}                  
+          <li class="span3"> 
+            <div class="thumbnail">
+             <img src="{{this_box['toprecipeimg']}}" alt="" height="150" width="200">
                     <div class="caption">
                     <h5>{{this_box['count']}} recipes</h5>
                     <p><id = "#{{this_label[0]}}{{this_box['label']}}" class="btn {{this_box['label']}}">See recipes!</a></p>
@@ -136,24 +115,17 @@
                     {% endif %}
 
                   </div>
-                </div>
-              </li>
-
-              {% endfor %}
-            </ul>
-          </div>
-  
+            </div>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
 
 <div class="hide divID1box1">           
     Best recipe here!
 </div>
 
-
-                </div>
-                {% endfor %}
-              </div>
-            </div> <!-- /tabbable -->
-          </div>
     </div> <!-- /container -->
 
     <!-- Le javascript

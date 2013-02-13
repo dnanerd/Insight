@@ -66,7 +66,7 @@ def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile, query):
 		print "loadRecipeGraph: Retrieving jaccard scores from database..."	
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		cursor = db.cursor()
-		cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.5") 
+		cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.2") 
 		jaccardAll = cursor.fetchall()
 		jaccardTup = [(id1,id2,jac) for id1,id2,jac in jaccardAll if id1 in recipenodes and id2 in recipenodes]
 		db.close()
@@ -115,7 +115,6 @@ def loadIngredientGraph(defaultGFile, loadFromFile):
 
 def getClusterLabel(ids, recordsHash):
 	names = [recordsHash[c] for c in ids if c in recordsHash.keys()]
-	print len(names), " out of ", len(ids), " recipes found in name translation"
 	namesl = ".".join(names)
 	#	namesl = re.sub(r'[-_]*',' ',namesl)
 	tokens = nltk.WordPunctTokenizer().tokenize(namesl)
@@ -186,7 +185,7 @@ def getTopRatedRecipe(recipes):
 	cursor=db.cursor()
 	#select the top races recipes in this list
 	defaultimgurl = "static/imgunavailable.png"
-	cmd = "SELECT id, rating, imgurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') AND rating >= (SELECT max(rating) AS rating FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\'))"
+	cmd = "SELECT id, rating, imgurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
 	cursor.execute(cmd) 
 	toprecords = cursor.fetchall()
 	allrecords = [(rid, imgurl) for rid, rating, imgurl in toprecords]
@@ -223,13 +222,65 @@ def findEnrichedIngredients(baseFrequency, sampleFrequency):
 		ingrDiff[ingr] = math.log((sampfreq+smoothing)/(basefreq+smoothing), 2)
 	return sorted(ingrDiff.iteritems(), key=lambda tup: tup[1], reverse=True)
 
-def subCluster(component):
-	#do a simple jaccard filter for now; later move on to something more sophisticated
-	Gfiltered = filterRecipeGraph(component, 0.7)
-	recipe_components = nx.connected_component_subgraphs(Gfiltered)
+def mergeClusters(cluster1, cluster2, listOfClusters):
+	print "merging clusters ", cluster1, " and ", cluster2
+	print "CLUSTER 1"
+	print ",".join(listOfClusters[cluster1])
+	print "CLUSTER 2"
+	print ",".join(listOfClusters[cluster2])
+
+	listOfClusters[cluster1].extend(listOfClusters[cluster2])
+	del listOfClusters[cluster2]
+	return listOfClusters
+
+def hierarchicalCluster(listOfClusters):
+	listOfFrequencies = []
+	for cl in listOfClusters:
+		listOfFrequencies.append(getIngredientFrequencies(cl))
+	for i, freq1 in enumerate(listOfFrequencies):
+		for j, freq2 in enumerate(listOfFrequencies):
+			if i>=j: continue
+			logRatios = findEnrichedIngredients(freq1,freq2)
+			enrichment = [(ingr, log) for ingr, log in logRatios if log>=2]
+			depletion = [(ingr, log) for ingr, log in logRatios if log<=-2]
+			if len(enrichment)==0 and len(depletion)==0:
+				print "MERGE!"
+				return mergeClusters(i,j,listOfClusters)
+			elif (len(enrichment) + len(depletion))<3:
+				print "Enrichment: ", len(enrichment)
+				print "Depletion: ", len(depletion)
+				print "MERGE!"
+				return mergeClusters(i,j,listOfClusters)
+	return False
+
+def combineClusters(listOfClusters):
+	print "Combine clusters..."
+	cluster = hierarchicalCluster(listOfClusters)
+	if (cluster):
+		print "Clustered!"
+		return combineClusters(cluster)
+	else:
+		print "STOP"
+		return listOfClusters
+
+def getClusters(searchGrecipes):
+	recipe_components = nx.connected_component_subgraphs(searchGrecipes)
 	return recipe_components
 
-def outputScreen2JSON(recipeClusterList, maxcutoff):
+def getPartitions(searchGrecipes):
+	partition = community.best_partition(searchGrecipes)
+	partitionArray = defaultdict(list)
+	for k, v in partition.iteritems():
+		partitionArray[v].append(k)
+	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
+	mergedPartitions = combineClusters(sortedPartitions)
+#	print mergedPartitions[0]
+	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
+	return components
+
+
+def outputScreenJSON(recipeClusterList, maxcutoff):
+	recordsHash = pickle.load(open("idToNameHash.pickle"))
 	cutoff = min(maxcutoff, len(recipeClusterList))
 	retval = []
 	counter=0
@@ -243,71 +294,24 @@ def outputScreen2JSON(recipeClusterList, maxcutoff):
 			links = cursor.fetchall()
 			db.close()
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
+			name = getClusterLabel(recipes, recordsHash)
+
 			ingrCounts = getIngredientFrequencies(recipes)
 			enrichment = []
+			depletion = []
+			displaytype = 'basic'
+
 			if counter>1:
 				logRatios = findEnrichedIngredients(retval[0]['ingrFreq'], ingrCounts)
-				enrichment = [(ingr, log) for ingr, log in logRatios if math.fabs(log)>=2]
-				if len(enrichment)>5:
-					enrichment = enrichment[0:5]
-			retval.append({'label': "box"+str(counter), 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'links': links})
-
+				enrichment = [(ingr, log) for ingr, log in logRatios if log>=2]
+				depletion = [(ingr, log) for ingr, log in logRatios if log<=-2]
+				if len(enrichment)<=4 and len(depletion)<=4:
+					displaytype = 'extension'
+			retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
 	return retval
 
-def outputScreen1JSON(recipe_components, cutoff):
-	screen1jsonFile = "static/outputScreen1JSON.txt"
-	recordsHash = pickle.load(open("idToNameHash.pickle"))
-	screen1_components = []
-	counts = [ len(recipe_mc.nodes()) for recipe_mc in recipe_components[0:cutoff]]
-	counts = counts[0:cutoff]
-	labels = [getClusterLabel(recipe_mc.nodes(), recordsHash) for recipe_mc in recipe_components[0:cutoff]]
-	labels = labels[0:cutoff]
-
-	labels = []
-
-	for i,recipe_mc in enumerate(recipe_components):
-		if i<=cutoff:
-			clusternodes = recipe_mc.nodes()
-			label = getClusterLabel(clusternodes, recordsHash)
-			while label in labels:
-				label = label+"I"
-			component = {'i':i, 'label':label, 'count':len(clusternodes),'nodes':clusternodes}
-			screen1_components.append(component)
-			labels.append(label)
-	#write json object to file
-	f = open(screen1jsonFile, 'w')
-	f.write(json.dumps(screen1_components))
-	f.close()
-	print labels
-	print counts
-
-	return screen1jsonFile, zip(labels, counts)
-
-def getClusters(searchGrecipes):
-	recipe_components = nx.connected_component_subgraphs(searchGrecipes)
-	return recipe_components
-
-def getPartitions(searchGrecipes):
-	partition = community.best_partition(searchGrecipes)
-	partitionArray = defaultdict(list)
-	for k, v in partition.iteritems():
-		partitionArray[v].append(k)
-	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
-	return components
-
-def subPartitions(component):
-	Gfiltered = filterRecipeGraph(component, 0.7)
-	partition = community.best_partition(searchGrecipes)
-	partitionArray = defaultdict(list)
-	for k, v in partition.iteritems():
-		partitionArray[v].append(k)
-	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
-	return sortedPartitions
 
 if __name__ == "__main__":
-	cutoff = min(len(components), 5)
-	search1jsonFile, labels = outputScreen1JSON(components, cutoff)
-	search2jsonObject = [outputScreen2JSON(subPartitions(component), 6) for component in components[0:5]]
+	components = getPartitions(searchGrecipes)
+	search1jsonObject = outputScreenJSON(components, cutoff)
 

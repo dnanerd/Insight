@@ -227,6 +227,9 @@ if __name__ == "__main__":
 		'mashed banana': 'banana'
 		'White sugar': 'sugar'
 		'soften butter': 'butter'
+		'unsalted butter': 'flour'
+		'plain flour': 'flour'
+		'bicarbonate of soda': 'baking soda'
 		'vegetable oil': 'oil'
 		'canola oil': 'oil'
 	}
