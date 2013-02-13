@@ -58,16 +58,7 @@ def result():
 
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipes():
-    print 'asjdaksjdalskdjaslkdj'
-    print request.form
-    print request.form.getlist("links[]")
-    print '----'
-    print dict(request.form)
-
-
     links = request.form.getlist('links[]')
-    for link in links:
-        print "links is", link
     return render_template('test.html', links = links)
 
 @app.route('/search')

@@ -312,7 +312,70 @@ def outputScreenJSON(recipeClusterList, maxcutoff):
 	return retval
 
 
+def findNameGroups(searchresults):
+	#load pickle file for id-to-name hash
+	recordsHash = pickle.load(open("idToNameHash.pickle"))
+	names = [recordHash[res] for res in searchresults if res in recordsHash]
+	#mark the end of line explicitly so we can work with NLTK
+	namesl = " ENDLINE ".join(names)
+
+	#split names into tokens
+	tokens = namesl.split()
+	#use NLTK to find bigrams
+	bigram_measures = nltk.collocations.BigramAssocMeasures()
+	word_fd = nltk.FreqDist(tokens)
+	bigram_fd = nltk.FreqDist(nltk.bigrams(tokens))
+	finder = BigramCollocationFinder(word_fd, bigram_fd)
+	#remove all words with specified characters
+	finder.apply_word_filter(lambda w: w in ('.', ',', '!', '\'','(', ')', "ENDLINE"))
+	bigram_scored = finder.score_ngrams(bigram_measures.raw_freq)
+	bigram_names = [name for name, val in bigram_scored]
+
+	#use NLTK to find trigrams
+	trigram_measures = nltk.collocations.TrigramAssocMeasures()
+	finder = TrigramCollocationFinder.from_words(tokens)
+	#remove all words with specified charactes
+	finder.apply_word_filter(lambda w: w in ('.', ',', '!', '\'','(', ')', "ENDLINE"))
+	trigram_scored = finder.score_ngrams(trigram_measures.raw_freq)
+	trigram_names = [name for name, val in trigram_scored]
+
+	#merge tri-indices and bi-indices
+	deleteBiIndices = []
+	deleteTriIndices = []
+	for ind, tri in enumerate(trigram_scored):
+			if ind>30: continue
+			#find bigrams associated with the trigram
+			i1 = bigram_names.index(trigram_scored[ind][0][0:2])
+			i2 = bigram_names.index(trigram_scored[ind][0][1:3])
+			val1 = bigram_scored[i1][1]
+			val2 = bigram_scored[i2][1]			
+			if math.fabs(math.log(val1/val2))<2 and val1>tri[1] and val2 > tri[1]:
+			#find expected value of trigram given independence assumption
+	#			if float(tri[1])/float((val1*val2)) > 2:
+				#trigram is overrepresented compared to expected from bigram
+				deleteBiIndices.append(i1)
+				deleteBiIndices.append(i2)
+			else:
+				deleteTriIndices.append(ind)
+	deleteBiIndices = list(set(deleteBiIndices))			
+	deleteTriIndices = list(set(deleteTriIndices))			
+	deleteBiIndices.reverse()
+	deleteTriIndices.reverse()
+	bigram_list = [(" ".join(tup), score) for tup, score in bigram_scored]
+	trigram_list = [(" ".join(tup), score) for tup, score in trigram_scored]
+	for i in deleteBiIndices: del bigram_list[i]
+	for i in deleteTriIndices: del trigram_list[i]
+
+	grams_scored = copy.copy(bigram_list)
+	grams_scored.extend(trigram_list)
+	grams_scored_sorted = sorted(grams_scored, key=lambda tup: tup[1], reverse=True)
+
+def defineClusters(searchresults):
+	# go through and sort clusters
+	findNameGroups(searchresults)
+
 if __name__ == "__main__":
 	components = getPartitions(searchGrecipes)
+	findNameGroups(searchresults, searchquery)
 	search1jsonObject = outputScreenJSON(components, cutoff)
 

@@ -152,15 +152,14 @@
   function getrecipes() {
 
     function callback(data) {
-        console.log(data);
+//        console.log(data);
         $("body").html(data);
     }
 
     jsonobj = {'links': {{searchJSON2|safe}} };
-    console.log( jsonobj['links'] );
 
     $.post("/recipes", jsonobj, callback);
-//    $.post("/recipes", {'the':'and'}, callback);
+
     return false;
 
 
