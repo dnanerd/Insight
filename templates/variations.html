@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--     jQuery Masonry adapted from David Desandro -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Le styles -->
+  <link href="../static/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="../static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/infinitescrollstyle.css" />
+  
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../static/bootstrap/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../static/bootstrap/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../static/bootstrap/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="../static/bootstrap/ico/apple-touch-icon-57-precomposed.png">
+   <link rel="shortcut icon" href="../static/bootstrap/ico/favicon.png">
+
+
+</head>
+
+<body>
+
+
+
+  <div class="container">
+
+      <h3>Here's a snapshot of your results.<h3>
+      <div></div>
+
+    </div>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="search">BakeSearch</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="search">Search</a></li>
+              <li><a href="howitworks">How it works</a></li>
+              <li><a href="data">Explore data</a></li>
+              <li><a href="contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <section id="content">
+
+  <div id="container" class="transitions-enabled infinite-scroll clearfix">
+   
+  {% for thisCluster in searchJSON %}
+    {% if thisCluster['count']>2 %}
+      {% if thisCluster == searchJSON[0] %}                 
+        <div class="box col5">
+          <h1>Basic Recipe: {{thisCluster['name']}}</h1>
+          <p>
+            <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+              <h2>(See {{thisCluster['count']}} similar recipes)</h2>
+            </a>
+              <a href = "{{thisCluster['centroid_recipe_url']}}" target="_blank">
+            <div class="imgHover">
+            <div class="hover">
+              <h2>{{thisCluster['centroid_recipe_name']}}
+                <br> (Click to open in new window)</h2>
+              <h2>Ingredients:</h2>
+              <h3>
+              {% for ingr in thisCluster['centroid_recipe_ingredients'] %}
+                {{ingr}}<br>
+              {% endfor %}
+              </h3>
+            </div>
+                <img src="{{thisCluster['toprecipeimg']}}" alt="{{thisCluster['name']}}"  />
+            </div>
+              </a>
+
+          </p>
+      {% else %}
+        {% if thisCluster['toprecipeimg'] == "static/imgunavailable.png" %}
+          <div class="box col2">
+          <a href = "{{thisCluster['centroid_recipe_url']}}" target="_blank">
+            <h2>{{thisCluster['name']}}</h2>
+          </a>
+          <p>
+          <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+            <h3>(See {{thisCluster['count']}} similar recipes)</h3>
+          </a>
+          </p>
+
+        {% else %}
+          <div class="box col2">
+          <h2>{{thisCluster['name']}}</h2>
+          <p>
+            <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+              <h3>(See {{thisCluster['count']}} similar recipes)</h3>
+            </a>
+ <!--           <div class="imgHover">
+            <div class="hover">
+              <h3>{{thisCluster['centroid_recipe_name']}}</h3>
+              </div>
+ -->             <a href = "{{thisCluster['centroid_recipe_url']}}" target="_blank">
+                <img src="{{thisCluster['toprecipeimg']}}" alt="{{thisCluster['name']}}"  />
+              </a>
+    <!--        </div>
+  -->
+          </p>
+        {% endif %}
+      {% endif %}
+
+
+        {% if thisCluster==searchJSON[0] %}
+          <h3><b>Ingredients:</b> 
+            {% for this_ingr_tup in thisCluster['ingrFreq'] %}
+              {% if this_ingr_tup[1]>0.9 %}
+              <font size=2>{{this_ingr_tup[0]}},</font>
+              {% elif this_ingr_tup[1]>0.5 %}
+              <font size=2>{{this_ingr_tup[0]}},</font>
+              {% endif %}
+            {% endfor %}
+          </h3>    
+        {% elif thisCluster['displaytype'] == 'extension' %}
+          <!--this can be compared to the base ingredient-->
+          <h3><b>Basic Recipe</b>
+            {% if thisCluster['enrichment'] %}
+              with: 
+              {% for ingr in thisCluster['enrichment'] %}
+                <font color='green'>{{ingr[0]}}</font>,
+              {% endfor %}
+            {% endif %}
+            {% if thisCluster['depletion'] %}
+              <br>without: 
+              {% for ingr in thisCluster['depletion'] %}
+                <font color='red'>{{ingr[0]}}</font>,
+              {% endfor %}
+            {% endif %}
+          </h3>
+        {% else %}
+          <h3><b>Ingredients:</b> 
+            {% for this_ingr_tup in thisCluster['ingrFreq'] %}
+              {% if this_ingr_tup[1]>0.9 %}
+              <font size=2>{{this_ingr_tup[0]}},</font>
+              {% elif this_ingr_tup[1]>0.5 %}
+              <font size=2>{{this_ingr_tup[0]}},</font>
+              {% endif %}
+            {% endfor %}
+          </h3>    
+
+        {% endif %}
+
+      </div>
+  {% endif %}
+{% endfor %}
+</div> <!-- #container -->
+
+<nav id="page-nav">
+  <a href="../pages/2.html"></a>
+</nav>
+
+<!-- <script src="static/js/jquery-1.7.1.min.js"></script> -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="static/js/jquery.masonry.min.js"></script>
+<script src="static/js/jquery.infinitescroll.min.js"></script>
+<script>
+
+  function getrecipes() {
+
+    function callback(data) {
+//        console.log(data);
+        $("body").html(data);
+    }
+
+    jsonobj = {'links': {{searchJSON2|safe}} };
+
+    $.post("/recipes", jsonobj, callback);
+
+    return false;
+
+
+
+
+  }
+
+  $(".imgHover").hover(function() {
+    $(this).children("img").fadeTo(100, 0.25)
+           .end().children(".hover").show();
+}, function() {
+    $(this).children("img").fadeTo(100, 1)
+           .end().children(".hover").hide();
+});
+
+
+  $(function(){
+    
+    var $container = $('#container');
+    
+    $container.imagesLoaded(function(){
+      $container.masonry({
+        itemSelector: '.box',
+        columnWidth: 100
+      });
+    });
+    
+    $container.infinitescroll({
+      navSelector  : '#page-nav',    // selector for the paged navigation 
+      nextSelector : '#page-nav a',  // selector for the NEXT link (to page 2)
+      itemSelector : '.box',     // selector for all items you'll retrieve
+      loading: {
+          finishedMsg: 'No more recipes to load.',
+        }
+      },
+      // trigger Masonry as a callback
+      function( newElements ) {
+        // hide new items while they are loading
+        var $newElems = $( newElements ).css({ opacity: 0 });
+        // ensure that images load before adding to masonry layout
+        $newElems.imagesLoaded(function(){
+          // show elems now they're ready
+          $newElems.animate({ opacity: 1 });
+          $container.masonry( 'appended', $newElems, true ); 
+        });
+      }
+    );
+    
+  });
+</script>
+    
+  </section> <!-- #content -->
+
+</body>
+</html>

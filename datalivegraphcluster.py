@@ -247,7 +247,7 @@ def hierarchicalCluster(listOfClusters):
 			if len(enrichment)==0 and len(depletion)==0:
 				print "MERGE!"
 				return mergeClusters(i,j,listOfClusters)
-			elif (len(enrichment) + len(depletion))<3:
+			elif (len(enrichment) + len(depletion))<1:
 				print "Enrichment: ", len(enrichment)
 				print "Depletion: ", len(depletion)
 				print "MERGE!"
@@ -278,9 +278,11 @@ def getPartitions(searchGrecipes):
 #	print mergedPartitions[0]
 	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
 	return components
+def getCentroidRecipe(recipeids):
+	return random.choice(recipeids)
 
 
-def outputScreenJSON(recipeClusterList, maxcutoff):
+def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
 	cutoff = min(maxcutoff, len(recipeClusterList))
 	retval = []
@@ -294,25 +296,46 @@ def outputScreenJSON(recipeClusterList, maxcutoff):
 			cursor.execute("SELECT id, name, sourceurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\')")
 			links = cursor.fetchall()
 			db.close()
+			urlDict = dict([(rid, url) for rid, name, url in links])			
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
-			name = getClusterLabel(recipes, recordsHash)
+			#defaultimgurl = "static/imgunavailable.png"
+			centroid_recipe = getCentroidRecipe(recipes).decode('string_escape')
+			centroid_recipe_url = urlDict[centroid_recipe]
+			centroid_recipe_name = recordsHash[centroid_recipe]
+			centroid_recipe_ingredients = recipesHash[centroid_recipe]
 
+			
+			#get ingredient enrichment frequencies, and find those that are enriched and those that are depleted
 			ingrCounts = getIngredientFrequencies(recipes)
+			ingrCountsDict = dict(ingrCounts)
+			centroid_recipe_ingredients_sorted = sorted(centroid_recipe_ingredients, key=lambda ingr: ingrCountsDict[ingr], reverse=True)
+
 			enrichment = []
 			depletion = []
-			displaytype = 'basic'
+			displaytype = 'extension'
 
 			if counter>1:
+				basicRecipeHash = dict(retval[0]['ingrFreq'])
+				variationRecipeHash = dict(ingrCounts)
 				logRatios = findEnrichedIngredients(retval[0]['ingrFreq'], ingrCounts)
-				enrichment = [(ingr, log) for ingr, log in logRatios if log>=2]
-				depletion = [(ingr, log) for ingr, log in logRatios if log<=-2]
+				enrichment = [(ingr, log) for ingr, log in logRatios if log>=2 and (ingr not in basicRecipeHash or basicRecipeHash[ingr]<0.5)]
+				depletion = [(ingr, log) for ingr, log in logRatios if log<=-2 and (ingr in basicRecipeHash and basicRecipeHash[ingr]>0.5)]
 				if len(enrichment)<=4 and len(depletion)<=4:
 					displaytype = 'extension'
-			retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
+
+			if counter==1:
+				name = getClusterLabel(recipes, recordsHash)
+			else:
+				if len(enrichment)>0:
+					name = "with "+ enrichment[0][0]				
+				else:
+					name = "without " + depletion[-1][0]
+
+			retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'centroid_recipe_url': centroid_recipe_url, 'centroid_recipe_name': centroid_recipe_name, 'centroid_recipe_ingredients': centroid_recipe_ingredients_sorted, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
 	return retval
 
 
 if __name__ == "__main__":
 	components = getPartitions(searchGrecipes)
-	search1jsonObject = outputScreenJSON(components, cutoff)
+	search1jsonObject = outputScreenJSON(components, cutoff, searchG)
 

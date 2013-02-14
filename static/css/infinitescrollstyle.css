@@ -358,6 +358,16 @@ button {
 .col4 img { max-width: 380px; }
 .col5 img { max-width: 480px; }
 
+
+.imgHover .hover { 
+    display: none;
+    position: absolute;
+    z-index: 2;
+    margin: 10px 10px 30px 30px;
+}
+
+
+
 /**** Gutters ****/
 
 .has-gutters .box {

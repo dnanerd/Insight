@@ -155,8 +155,13 @@ def loadApp():
 	recordTuples = cursor.fetchall()
 	recordsHash = dict(recordTuples)
 	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
+	recipesTuples = cursor.fetchall()
+	recipesHash = defaultdict(list)
+	for rid, ingr in recipesTuples:
+		recipesHash[rid].append(ingr)
+	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
 	db.close()
-
 
 	defaultGFile = "Gjaccard.pickle"
 	defaultGrecipesFile = "Grecipesjaccard.pickle"
@@ -171,7 +176,7 @@ def loadApp():
 	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
 
 	print "Done loading."
-	return (unitHash, recordsHash, G, Grecipes, Gingredients)	
+	return (unitHash, recordsHash, recipesHash, G, Grecipes, Gingredients)	
 
 if __name__ == "__main__":
 
@@ -186,6 +191,12 @@ if __name__ == "__main__":
 	recordTuples = cursor.fetchall()
 	recordsHash = dict(recordTuples)
 	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
+	recordTuples = cursor.fetchall()
+	recipesHash = defaultdict(list)
+	for rid, ingr in recordTuples:
+		recordsHash[rid].append(ingr)
+	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
 	db.close()
 
 

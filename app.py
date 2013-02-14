@@ -11,6 +11,7 @@ from flask import request
 import dataliveloadgraph as dll
 import datalivesearch as dls
 import datalivegraphcluster as dlg
+import datalivecluster as dlc
 import networkx as nx
 
 
@@ -28,7 +29,7 @@ for l in f:
     filehtml.append(l)
 f.close
 
-(unitHash, recipeNameHash, G, Grecipes, Gingredients) = dll.loadApp()
+(unitHash, recipeNameHash, recipesHash, G, Grecipes, Gingredients) = dll.loadApp()
 
 
 #def loadData():
@@ -39,11 +40,37 @@ def index():
     return render_template('search.html')
 
 
-@app.route('/result', methods=['GET', 'POST'])
+@app.route('/result', methods=['GET'])
 def result():
     search = request.args.getlist('search')[0].decode('string_escape')
     resultFile = "searchrecordids.txt"
     results = dls.searchRecipes(search, resultFile)
+    total = len(results)
+    idGroups = dlc.findNameGroups(results)
+    idGroupsHash = {}
+    for group in idGroups:
+        idGroupsHash[group['label']] = group['ids']
+    return render_template('finitescroll.html', query=search, totalresults = total, searchJSON=idGroups, searchJSON2=[idGroupsHash])
+
+@app.route('/result2', methods=['GET', 'POST'])
+def result2():
+    results = request.form.getlist('links[]')
+    total = len(results)
+    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
+#    clusters = dlg.getClusters(searchGrecipes)
+    clusters = dlg.getPartitions(searchGrecipes)
+    cutoff = min(1000, len(clusters))
+#    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
+    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff, recipesHash)
+#    searchjsonObject2 = {'object':'searchjsonObject'}
+    searchjsonObject2 = [tup[2] for tup in searchjsonObject[0]['links']]
+
+    return render_template('variations.html', query=search, totalresults = total, searchJSON=searchjsonObject, searchJSON2=searchjsonObject2)
+
+
+@app.route('/result3', methods=['GET', 'POST'])
+def result3():
+    results = request.form.getlist('links[]')
     total = len(results)
     (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
 #    clusters = dlg.getClusters(searchGrecipes)
@@ -59,6 +86,7 @@ def result():
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipes():
     links = request.form.getlist('links[]')
+
     return render_template('test.html', links = links)
 
 @app.route('/search')

@@ -274,13 +274,13 @@ def getPartitions(searchGrecipes):
 	for k, v in partition.iteritems():
 		partitionArray[v].append(k)
 	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-	mergedPartitions = combineClusters(sortedPartitions)
+#	mergedPartitions = combineClusters(sortedPartitions)
 #	print mergedPartitions[0]
 	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
 	return components
 
 
-def outputScreenJSON(recipeClusterList, maxcutoff):
+def outputScreenJSON(recipeClusterList, maxcutoff, searchG):
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
 	cutoff = min(maxcutoff, len(recipeClusterList))
 	retval = []
@@ -315,7 +315,7 @@ def outputScreenJSON(recipeClusterList, maxcutoff):
 def findNameGroups(searchresults):
 	#load pickle file for id-to-name hash
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
-	names = [recordHash[res] for res in searchresults if res in recordsHash]
+	names = [recordsHash[res] for res in searchresults if res in recordsHash]
 	#mark the end of line explicitly so we can work with NLTK
 	namesl = " ENDLINE ".join(names)
 
@@ -370,12 +370,21 @@ def findNameGroups(searchresults):
 	grams_scored.extend(trigram_list)
 	grams_scored_sorted = sorted(grams_scored, key=lambda tup: tup[1], reverse=True)
 
-def defineClusters(searchresults):
-	# go through and sort clusters
-	findNameGroups(searchresults)
+	large_groups = [(name, score) for name, score in grams_scored_sorted if score*len(searchresults)>10]
+	maxcutoff = 5
+	idGroups = []
+	for i, (name, score) in enumerate(large_groups):
+		label = "namebox"+str(i)
+		rids = [rid for rid in recordsHash.keys() if name in recordsHash[rid]]
+		toprecipeimg = getTopRatedRecipe(rids)[1]
+		idGroups.append({'label': label, 'name': name, 'count': len(rids), 'toprecipeimg': toprecipeimg, 'ids':rids})
+	return idGroups
+
 
 if __name__ == "__main__":
+	groups = findNameGroups(searchresults)
+	specificNameGroup = groups[0]['ids']
+	(searchG, searchGrecipes, searchGingredients) = filterGraphByRecipeID(G, Grecipes, Gingredients, specificNameGroup)
 	components = getPartitions(searchGrecipes)
-	findNameGroups(searchresults, searchquery)
-	search1jsonObject = outputScreenJSON(components, cutoff)
+	search1jsonObject = outputScreenJSON(components, cutoff, searchG)
 
