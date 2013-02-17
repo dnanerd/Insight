@@ -35,14 +35,14 @@ def define(word):
 	if synsets:
 		definition = synsets[0].lemma_names[0]
 		if (definition.lower() in word.lower()) or (word.lower() in definition.lower()):
-			return definition
+			return definition.lower()
 		else:
 			return 'NULL'
 	else:
 		return 'NULL'
 
 def defineMultiple(words):
-	tokens = nltk.word_tokenize(words)
+	tokens = nltk.word_tokenize(words.lower())
 	tokenDefined = []
 	for t in tokens:
 		td = define(t)

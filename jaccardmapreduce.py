@@ -48,6 +48,10 @@ db = sql.connect("localhost",'testuser','testpass',"test" )
 cursor=db.cursor()
 cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
 ingredientTuples = cursor.fetchall()
+f = open("recipeIngredients.txt", 'w')
+outVal = ["\t".join(tup) for tup in ingredientTuples]
+f.write("\n".join(outVal))
+f.close()
 db.commit()
 db.close()
 

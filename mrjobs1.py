@@ -8,8 +8,8 @@ import networkx as nx
 
 class MRWordCounter(MRJob):
 
-	G = pickle.load(open("/Users/apple/Desktop/Work/Scripts/Insight/defaultGFile.pickle"))
-	recipeSizes = pickle.load(open("/Users/apple/Desktop/Work/Scripts/Insight/defaultRecipeLengths.pickle"))
+	G = pickle.load(open("defaultGFile.pickle"))
+	recipeSizes = pickle.load(open("defaultRecipeLengths.pickle"))
 
 	def mapper(self, key, ingr):
 		recipes = MRWordCounter.G.neighbors(ingr)

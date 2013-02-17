@@ -67,7 +67,7 @@
     <div class="box col3">
       {% if thisCluster['toprecipeimg'] == "static/imgunavailable.png" %}
         <p>
-          <a id = "#{{thisCluster['label']}}" onclick="getrecipes('{{thisCluster['label']}}') ;" title="{{thisCluster['name']}}">
+          <a href = "#" id = "#{{thisCluster['label']}}" onclick="getrecipes('{{thisCluster['label']}}') ;" title="{{thisCluster['name']}}">
           <h2>{{thisCluster['name']}}</h2>
           </a>
         <h3>({{thisCluster['count']}} similar recipes)</h3>
@@ -77,9 +77,11 @@
         <h2>{{thisCluster['name']}}</h2>
         <h3>({{thisCluster['count']}} similar recipes)</h3>
         <p>
-          <a id = "#{{thisCluster['label']}}" onclick="getrecipes('{{thisCluster['label']}}') ;" title="{{thisCluster['name']}}">
+          <a href = "#" id = "#{{thisCluster['label']}}" onclick="getrecipes('{{thisCluster['label']}}') ;" title="{{thisCluster['name']}}">
             <div class="imgHover">
-              <div class="hover">Click to see variations</div>
+            <div class="hover">
+              Click to see variations
+            </div>
               <img src="{{thisCluster['toprecipeimg']}}" alt="{{thisCluster['name']}}"  />
             </div>
           </a>
@@ -110,7 +112,6 @@
   });
 
   function getrecipes(groupid) {
-    console.log(groupid)
     function callback(data) {
         $("body").html(data);
     }
@@ -118,7 +119,6 @@
     jsonobj = {{searchJSON2|safe}};
 
     passobj = {'links': jsonobj[0][groupid]}
-    console.log(passobj['links'])
     $.post("/result2", passobj, callback);
 
     return false;

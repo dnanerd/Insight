@@ -28,7 +28,7 @@ html {
 
 body { 
   font: 13px 'Helvetica Neue', Arial, sans-serif;
-  background: #FFFFFF;
+  background: #f2f0f0;
   color: #222;
   line-height: 1.6em;
   padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -117,7 +117,7 @@ strong { font-weight: bold; }
 }
 
 #site-nav li.current {
-  background: #FFFFFF;
+  background: #f2f0f0;
 }
 
 #site-nav li.current a { color: white; }
@@ -293,7 +293,7 @@ button {
 /**** Demos ****/
 
 #container {
-  background: #FFF;
+  background: #f2f0f0;
   padding: 5px;
   margin-bottom: 20px;
   border-radius: 5px;
@@ -445,7 +445,7 @@ button {
   float: left;
   padding: 10px;
   margin: 10px;
-  background: #FFFFFF;
+  background: #f2f0f0;
   font-weight: 300;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
@@ -501,7 +501,7 @@ button {
 
 .homepage .loading {
   background: black;
-  color: #FFFFFF;
+  color: #f2f0f0;
 }
 
 .homepage .loading img {
@@ -516,7 +516,7 @@ button {
   float: left;
   background: white;
   margin: 3px;
-  color: #FFFFFF;
+  color: #f2f0f0;
   font-weight: bold;
   font-size: 32px;
   line-height: 46px;
