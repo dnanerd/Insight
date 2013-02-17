@@ -57,7 +57,7 @@ def parseRecipeResults(recipeResultsFile):
 if __name__ == "__main__":
 	db = MySQLdb.connect("localhost",'testuser','testpass',"test" )
 #pmcon = pymongo.Connection('localhost', port=27017)
-	search ="cake"
+	search ="muffin"
 	recipeFile = "recipedb."+search.split()[0]+".flat.txt"
 	f2 = open('errorsrecipes.txt', 'w')
 	f2.close()

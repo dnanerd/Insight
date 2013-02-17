@@ -195,7 +195,7 @@ if __name__ == "__main__":
 	recordTuples = cursor.fetchall()
 	recipesHash = defaultdict(list)
 	for rid, ingr in recordTuples:
-		recordsHash[rid].append(ingr)
+		recipesHash[rid].append(ingr)
 	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
 	db.close()
 

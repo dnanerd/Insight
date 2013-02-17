@@ -29,7 +29,7 @@ def normalizeIngredients(ingrHash):
 	# prepare a cursor object using cursor() method
 	cursor = db.cursor()
 	for ingr in ingrHash.keys():
-		cmd = "UPDATE ingredients SET normingredient = \'" + ingrHash[ingr] + "\' WHERE normingredient = \'" + ingr + "\'"
+		cmd = "UPDATE ingredients SET normingredient = \'" + ingrHash[ingr] + "\' WHERE normingredient REGEXP \'" + ingr + "\'"
 		cursor.execute(cmd)
 	db.commit()
 	db.close()
@@ -205,33 +205,42 @@ if __name__ == "__main__":
 
 
 	ingrHash = {
-		'vanilla': 'vanilla extract',
-		'White flour': 'flour',
-		'flour for dust': 'flour',
-		'all purpos flour': 'flour',
-		'beat egg': 'egg',
-		'egg egg_yolk': 'egg yolk',
-		'large egg': 'egg',
+		'^vanilla$': 'vanilla extract',
+		'^White flour$': 'flour',
+		'^flour': 'flour',
+		'all purpose? flour': 'flour',
+		'.* egg$': 'egg',
+		'[\s]*yolk[\s]*': 'egg yolk',
 		'large egg yolks': 'egg yolk',
 		'egg_yolk': 'egg yolk',
 		'egg yolks': 'egg yolk',
-		'melt butter': 'butter',
-		'chop nut': 'nut',
-		'pure vanilla extract': 'vanilla extract',
-		'granulate sugar': 'sugar',
-		'all purpose flour': 'flour',
-		'warm water': 'water',
-		'fast rising yeast': 'yeast',
-		'chop pecan': 'pecan',
-		'cocoa powder': 'cocoa'
-		'mashed banana': 'banana'
-		'White sugar': 'sugar'
-		'soften butter': 'butter'
-		'unsalted butter': 'flour'
-		'plain flour': 'flour'
-		'bicarbonate of soda': 'baking soda'
-		'vegetable oil': 'oil'
-		'canola oil': 'oil'
+		'.* butter$': 'butter',
+		'.* nut$': 'nut',
+		'.* vanilla extract$': 'vanilla extract',
+		'granulate sugar$': 'sugar',
+		'.*brown sugar$': 'brown sugar',
+		'[boiling|warm|hot|cold|ice] water$': 'water',
+		'.* yeast$': 'yeast',
+		'.* pecan$': 'pecan',
+		'^cocoa .*': 'cocoa',
+		'.* banana$': 'banana',
+		'White sugar$': 'sugar',
+		'plain flour$': 'flour',
+		'.*pudding.*': 'pudding,',
+		'bicarbonate of soda': 'baking soda',
+		'[canola|vegetable] oil$': 'oil',
+		'.*chocolate.*[bar|chip|morsel].*': 'chocolate', #(?!chip)(?!morsel)
+		'.*chocolate$': 'chocolate', #(?!chip)(?!morsel)
+		'.*cake mix.*': 'cake mix', #(?!cream)(?!milk)(?!mix)
+		'ground cinnamon': 'cinnamon',
+		'cinnamon stick': 'cinnamon',
+		'ground nutmeg': 'nutmeg',
+		'ground flax': 'ground flax',
+		'.* bread': 'bread',
+		'salt$': 'salt',
+		'ice cream': 'ice cream$',
+		'.*whip.* cream$': 'whipped cream',
+		'.*confectioner.*sugar': 'confectioner sugar'
 	}
 
 

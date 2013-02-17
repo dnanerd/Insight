@@ -18,6 +18,7 @@ import copy
 import networkx as nx
 import nltk
 import pandas
+import math
 from nltk.corpus import wordnet as wn
 
 
@@ -46,6 +47,10 @@ def defineMultiple(words):
 	for t in tokens:
 		td = define(t)
 		if td=='NULL':
+			tokenDefined.append(t)
+		elif math.fabs(len(td)-len(t))>2:
+			tokenDefined.append(t)
+		elif '_' in td:
 			tokenDefined.append(t)
 		else:
 			tokenDefined.append(td)

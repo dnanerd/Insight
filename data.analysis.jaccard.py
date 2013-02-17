@@ -52,7 +52,8 @@ def calculateRecipeJaccardIndices(recipeids):
 
 	db.commit()
 	db.close()
-	
+
+		
 	for recipeid, recipeingr in ingredientTuples:
 		if recipeid not in recipeids: continue
 		if recipeid in recipeToIngredientHash.keys():
@@ -76,7 +77,7 @@ def calculateRecipeJaccardIndices(recipeids):
 #	for id1, id2, jaccard in jaccardTuples:
 #		jaccardHash[id1][id2]=jaccard
 
-	print "calculating jaccard indices..."
+	print "calculating jaccard indices for "+str(len(recipeToIngredientHash.keys()))+" recipes..."
 	for recipe1 in recipeToIngredientHash.keys():
 		counter+=1
 		if counter%10==0:
@@ -86,9 +87,16 @@ def calculateRecipeJaccardIndices(recipeids):
 			counter2+=1
 			if counter2%500==0:
 				print counter2, " 2nd recipes processed."
-			if recipe1==recipe2: continue #skip if comparing to self
-			if (recipe1, recipe2) in jaccardTuples: continue
-			if (recipe2, recipe1) in jaccardTuples: continue
+			if recipe1>=recipe2: continue #skip if comparing to self
+			if (recipe1, recipe2) in jaccardTuples:
+				jaccard = Jaccard(ingrHash[recipe1], ingrHash[recipe2])
+				cmd = "UPDATE recipejaccard SET jaccard = " +str(jaccard) + "WHERE id1 = \'"+mysqlify(recipe1) + "\' and id2=\'"+mysqlify(recipe2)+"\'"
+				cursor.execute(cmd)
+			if (recipe2, recipe1) in jaccardTuples:
+				jaccard = Jaccard(ingrHash[recipe1], ingrHash[recipe2])
+				cmd = "UPDATE recipejaccard SET jaccard = " +str(jaccard) + "WHERE id1 = \'"+mysqlify(recipe2) + "\' and id2=\'"+mysqlify(recipe1)+"\'"
+				cursor.execute(cmd)
+			jaccard = Jaccard(ingrHash[recipe1], ingrHash[recipe2])
 #			if recipe1 in recipeToIngredientHash and recipe2 in recipeToIngredientHash[recipe1]: continue #skip if already calculated in database
 #			if recipe2 in recipeToIngredientHash and recipe1 in recipeToIngredientHash[recipe2]: continue #skip if already calculated in database
 
@@ -104,6 +112,7 @@ def calculateIngredientJaccardIndices():
 	counter = 0
 	print "loading ingredients..."
 
+
 	cmd = "SELECT id, normingredient FROM normrecipeingredients"
 	#load all existing jaccard indices from database
 	cursor.execute(cmd)
@@ -118,24 +127,31 @@ def calculateIngredientJaccardIndices():
 	cmd = "SELECT ingr1,ingr2 FROM ingredientjaccard"
 	cursor.execute(cmd)
 	jaccardTuples = cursor.fetchall()
+	jaccardTuples = ()
 	db.close()
 
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 
-	print "calculating jaccard indices for ingredients..."
+	print "calculating jaccard indices for "+ str(len(ingrHash.keys())) + " ingredients..."
 	for ingr1 in ingrHash.keys():
 		counter+=1
 		if counter%100==0:
 			print counter, " 1st ingredients processed."
+			db.commit() 	
 		for ingr2 in ingrHash.keys():
-			if ingr1==ingr2: continue #skip if comparing to self
-			if (ingr1, ingr2) in jaccardTuples: continue
-			if (ingr2, ingr1) in jaccardTuples: continue
+			if ingr1>=ingr2: continue #skip if comparing to self
+			if (ingr1, ingr2) in jaccardTuples:
+				jaccard = Jaccard(ingrHash[ingr1], ingrHash[ingr2])
+				cmd = "UPDATE ingredientjaccard SET jaccard = " +str(jaccard) + "WHERE id1 = \'"+mysqlify(ingr1) + "\' and id2=\'"+mysqlify(ingr2)+"\'"
+				cursor.execute(cmd)
+			if (ingr2, ingr1) in jaccardTuples:
+				jaccard = Jaccard(ingrHash[ingr1], ingrHash[ingr2])
+				cmd = "UPDATE ingredientjaccard SET jaccard = " +str(jaccard) + "WHERE id1 = \'"+mysqlify(ingr2) + "\' and id2=\'"+mysqlify(ingr1)+"\'"
+				cursor.execute(cmd)
 			jaccard = Jaccard(ingrHash[ingr1], ingrHash[ingr2])
 			cmd = "INSERT IGNORE INTO ingredientjaccard(ingr1,ingr2, jaccard) VALUES(\'"+mysqlify(ingr1)+"\',\'"+mysqlify(ingr2)+"\',"+str(jaccard)+")"
 			cursor.execute(cmd)
-		db.commit() 	
 	db.close()
 	pickle.dump(ingrHash, open("ingredientjaccard.pickle", 'w'))
 
@@ -145,9 +161,14 @@ if __name__ == "__main__":
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor = db.cursor()
 
-	searchResultFile = 'searchrecordids.txt'
-	f = open(searchResultFile, 'r')
-	recipenodes = f.read().split("\n")
-	print "searchedrecords loaded"
-#	calculateRecipeJaccardIndices(recipenodes)
-	calculateIngredientJaccardIndices()
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
+	recordTuples = cursor.fetchall()
+	recipesHash = defaultdict(list)
+	for rid, ingr in recordTuples:
+		recipesHash[rid].append(ingr)
+	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
+
+	recipenodes = recipesHash.keys()
+
+	calculateRecipeJaccardIndices(recipenodes)
+	#calculateIngredientJaccardIndices()

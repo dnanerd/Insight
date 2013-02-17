@@ -278,9 +278,22 @@ def getPartitions(searchGrecipes):
 #	print mergedPartitions[0]
 	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
 	return components
-def getCentroidRecipe(recipeids):
-	return random.choice(recipeids)
+def sigmoid(x):
+  return 1 / (1 + math.exp(-x))
 
+def getCentroidRecipe(recipeids, ingrFreq):
+	ingrFreqHash = dict(ingrFreq)
+	for ingr, freq in ingrFreq:
+		if freq>0.6:
+			ingrFreqHash[ingr]=1
+	recipeEssentialityScore = {}
+	for rid in recipeids:
+		recipeEssentialityScore[rid] = np.prod(np.array([sigmoid(freq) for ingr, freq in ingrFreqHash.iteritems()]))
+	sortedRecipes = sorted(recipeEssentialityScore.iteritems(), key=lambda (rid, score): score, reverse=True)
+	print sortedRecipes
+	maxScore = sortedRecipes[0][1]
+	maxRecipes = [rid for rid, score in sortedRecipes if score==maxScore]
+	return random.choice(maxRecipes)
 
 def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
@@ -299,15 +312,16 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 			urlDict = dict([(rid, url) for rid, name, url in links])			
 			toprecipeimg = getTopRatedRecipe(recipes)[1]
 			#defaultimgurl = "static/imgunavailable.png"
-			centroid_recipe = getCentroidRecipe(recipes).decode('string_escape')
+			ingrCounts = getIngredientFrequencies(recipes)
+			ingrCountsDict = dict(ingrCounts)
+
+			centroid_recipe = getCentroidRecipe(recipes, ingrCounts).decode('string_escape')
 			centroid_recipe_url = urlDict[centroid_recipe]
 			centroid_recipe_name = recordsHash[centroid_recipe]
 			centroid_recipe_ingredients = recipesHash[centroid_recipe]
 
 			
 			#get ingredient enrichment frequencies, and find those that are enriched and those that are depleted
-			ingrCounts = getIngredientFrequencies(recipes)
-			ingrCountsDict = dict(ingrCounts)
 			centroid_recipe_ingredients_sorted = sorted(centroid_recipe_ingredients, key=lambda ingr: ingrCountsDict[ingr], reverse=True)
 
 			enrichment = []
@@ -328,9 +342,10 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 			else:
 				if len(enrichment)>0:
 					name = "with "+ enrichment[0][0]				
-				else:
+				elif len(depletion)>0:
 					name = "without " + depletion[-1][0]
-
+				else:
+					name = "Basic recipe"
 			retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'centroid_recipe_url': centroid_recipe_url, 'centroid_recipe_name': centroid_recipe_name, 'centroid_recipe_ingredients': centroid_recipe_ingredients_sorted, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
 	return retval
 
