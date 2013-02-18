@@ -33,6 +33,8 @@ ingredientHash = defaultdict(list)
 for rid, ingr in recipeTuples:
 	recipesHash[rid].append(ingr)
 	ingredientHash[ingr].append(rid)
+pickle.dump(recipesHash, open("recipeToIngredient.pickle", 'w'))
+pickle.dump(ingredientHash, open("ingredientToRecipeHash.pickle", 'w'))
 
 db.commit()
 db.close()
