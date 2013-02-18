@@ -205,10 +205,10 @@ if __name__ == "__main__":
 	defaultGingredientsFile = "Gingredientsjaccard.pickle"
 
 	print "Retrieving recipe-ingredient graph..."
-	G = getRecipeIngredientGraph(defaultGFile, True)
+	G = getRecipeIngredientGraph(defaultGFile, False)
 #	print "Retrieving ingredient graph..."
-	Gingredients = createIngredientGraph(G, defaultGingredientsFile, True)
+	Gingredients = createIngredientGraph(G, defaultGingredientsFile, False)
 	print "Retrieving recipe graph..."
-	Grecipes = createRecipeGraph(defaultGrecipesFile, True)
+	Grecipes = createRecipeGraph(defaultGrecipesFile, False)
 #	writeIngredientGraphJSON(Gingredients, G)
 

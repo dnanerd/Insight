@@ -16,7 +16,7 @@ import nltk
 import pickle
 
 MINRANGE = 0
-MAXRANGE = 5000
+MAXRANGE = 1000
 
 db = sql.connect("localhost",'testuser','testpass',"test" )
 cursor = db.cursor()
@@ -29,8 +29,10 @@ cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
 recipeTuples = cursor.fetchall()
 
 recipesHash = defaultdict(list)
+ingredientHash = defaultdict(list)
 for rid, ingr in recipeTuples:
 	recipesHash[rid].append(ingr)
+	ingredientHash[ingr].append(rid)
 pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
 
 db.commit()
@@ -40,13 +42,17 @@ db.close()
 jaccardHash = defaultdict(float)
 sys.stderr.write("Now calculating Jaccard distances")
 counter1 = 0
-for ind1, rid1 in enumerate(recipesHash.keys()):
+for rid1, ingrList1 in recipesHash.iteritems():
 	counter1+=1
-	if counter1 < MINRANGE: break
+	if counter1 < MINRANGE: continue
 	if counter1 >= MAXRANGE: break
 	if counter1%100==0: sys.stderr.write(str(counter1)+" recipes printed...")
-	for ind2, rid2 in enumerate(recipesHash.keys()):
-		if ind1>=ind2: continue
+	pairs = []
+	for ingr in ingrList1:
+		pairs.extend(ingredientHash[ingr])
+	pairs = list(set(pairs))
+	for rid2 in pairs:
+		if rid1==rid2: continue
 		print rid1,":",",".join(recipesHash[rid1]),";",rid2,":",",".join(recipesHash[rid2])
 
 
