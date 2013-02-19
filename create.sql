@@ -25,6 +25,8 @@ CREATE TABLE records
   sourcename varchar(50),
   sourceurl varchar(250),
   servings int,
+  imgurl varchar(250),
+  imgurllg varchar(250),
   PRIMARY KEY (id)
 ) ENGINE = InnoDB;
 

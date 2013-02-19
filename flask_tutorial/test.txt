@@ -1,7 +1,0 @@
-Keys:  matches,
-totalMatchCount,
-attribution,
-facetCounts,
-criteria 
-
-Number of records:  2842
