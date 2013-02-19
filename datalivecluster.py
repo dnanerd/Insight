@@ -21,12 +21,6 @@ import math
 import dataliveloadgraph
 import datalivesearch
 
-
-try:
-    import sklearn as ml
-except ImportError:
-    import scikits.learn as ml
-
 def retrieveSearchRecords(searchResultFile):
 	f = open(searchResultFile, 'r')
 	results = f.read().split("\n")

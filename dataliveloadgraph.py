@@ -17,12 +17,6 @@ import networkx as nx
 import random
 #import matplotlib as mpl
 
-
-try:
-    import sklearn as ml
-except ImportError:
-    import scikits.learn as ml
-
 def Jaccard(list1, list2):
 	intersection = list(set(list1) & set(list2))
 	union = list(set(list1) | set(list2))
