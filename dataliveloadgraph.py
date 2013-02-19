@@ -144,24 +144,9 @@ def getRecipeIngredientGraph(defaultGFile, loadFromFile):
 		return G
 
 def loadApp():
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
-	cursor.execute("""SELECT * FROM units""")
-	print "unit hash created"
-	unitTuple = cursor.fetchall()
-	unitHash = dict(unitTuple)
-	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
-	cursor.execute("SELECT id, name FROM records")
-	recordTuples = cursor.fetchall()
-	recordsHash = dict(recordTuples)
-	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
-	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
-	recipesTuples = cursor.fetchall()
-	recipesHash = defaultdict(list)
-	for rid, ingr in recipesTuples:
-		recipesHash[rid].append(ingr)
-	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
-	db.close()
+	unitHash = pickle.load(open("unitNormHash.pickle"))
+	recordsHash = pickle.load(open("idToNameHash.pickle"))
+	recipesHash = pickle.load(open("idToIngredient.pickle"))
 
 	defaultGFile = "Gjaccard.pickle"
 	defaultGrecipesFile = "Grecipesjaccard.pickle"
@@ -178,37 +163,4 @@ def loadApp():
 	print "Done loading."
 	return (unitHash, recordsHash, recipesHash, G, Grecipes, Gingredients)	
 
-if __name__ == "__main__":
-
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor = db.cursor()
-	cursor.execute("""SELECT * FROM units""")
-	print "unit hash created"
-	unitTuple = cursor.fetchall()
-	unitHash = dict(unitTuple)
-	pickle.dump(unitHash, open("unitNormHash.pickle", 'w'))
-	cursor.execute("SELECT id, name FROM records")
-	recordTuples = cursor.fetchall()
-	recordsHash = dict(recordTuples)
-	pickle.dump(recordsHash, open("idToNameHash.pickle", 'w'))
-	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
-	recordTuples = cursor.fetchall()
-	recipesHash = defaultdict(list)
-	for rid, ingr in recordTuples:
-		recipesHash[rid].append(ingr)
-	pickle.dump(recipesHash, open("idToIngredient.pickle", 'w'))
-	db.close()
-
-
-	defaultGFile = "Gjaccard.pickle"
-	defaultGrecipesFile = "Grecipesjaccard.pickle"
-	defaultGingredientsFile = "Gingredientsjaccard.pickle"
-
-	print "Retrieving recipe-ingredient graph..."
-	G = getRecipeIngredientGraph(defaultGFile, False)
-#	print "Retrieving ingredient graph..."
-	Gingredients = createIngredientGraph(G, defaultGingredientsFile, False)
-	print "Retrieving recipe graph..."
-	Grecipes = createRecipeGraph(defaultGrecipesFile, False)
-#	writeIngredientGraphJSON(Gingredients, G)
 

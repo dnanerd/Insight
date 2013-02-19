@@ -71,7 +71,10 @@ def pairs(recipes):
 			intersection = list(set(ingredientLine1) & set(ingredientLine2))
 			union = list(set(ingredientLine1) | set(ingredientLine2))
 			if (intersection):
-				print rid1,rid2,float(len(intersection))/float(len(union))
+				jaccard = float(len(intersection))/float(len(union))
+				if jaccard>=0.3:
+					retval.append(rid1+","+rid2+","+str(jaccard))
+	return "\n".join(retval)
 
 def chunks(l, n):
   for i in xrange(0, len(l), n):
@@ -83,4 +86,6 @@ p = Pool(processes = 8)
 recipes = recipesHash.keys()[MININD:MAXIND]
 partitioned_recipes = list(chunks(recipes, len(recipes) / 8))
 
-print p.map(pairs,partitioned_recipes)
+retvals = p.map(pairs,partitioned_recipes)
+
+print "\n".join(retvals)

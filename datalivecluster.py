@@ -186,12 +186,15 @@ def getTopRatedRecipe(recipes):
 	cursor=db.cursor()
 	#select the top races recipes in this list
 	defaultimgurl = "static/imgunavailable.png"
-	cmd = "SELECT id, rating, imgurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
+	cmd = "SELECT id, rating, imgurl, imgurllg FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
 	cursor.execute(cmd) 
 	toprecords = cursor.fetchall()
-	allrecords = [(rid, imgurl) for rid, rating, imgurl in toprecords]
-	imagerecords = [(rid, imgurl) for rid, rating, imgurl in toprecords if imgurl!='NULL']
-	if len(imagerecords)>0:
+	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords]
+	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords if imgurl!='NULL']
+	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg in toprecords if imgurllg!='NULL']
+	if len(largeimagerecords)>0:
+		return random.choice(imagerecords)
+	elif len(imagerecords)>0:
 		return random.choice(imagerecords)
 	else:
 		return (random.choice(allrecords)[0], defaultimgurl)

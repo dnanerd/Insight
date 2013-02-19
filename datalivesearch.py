@@ -101,4 +101,5 @@ def filterGraphByRecipeID(G, Grecipes, Gingredients, nodes):
 if __name__ == "__main__":
 	tempsearchfile = 'searchrecordids.txt'
 	searchresults = searchRecipes('cookies', tempsearchfile)
+	
 	(searchG, searchGrecipes, searchGingredients) = filterGraphByRecipeID(G, Grecipes, Gingredients, searchresults)

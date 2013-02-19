@@ -40,42 +40,6 @@ def Jaccard(list1, list2):
 	union = list(set(list1) | set(list2))
 	return float(len(intersection))/float(len(union))
 
-def loadRecipeGraph(recipenodes):
-	#create recipe graph
-	Grecipes = nx.Graph()
-
-	print "Adding ", len(recipenodes), " nodes..."
-	Grecipes.add_nodes_from(recipenodes)
-
-	print "Retrieving jaccard distances from database..."
-	cursor = db.cursor()
-	cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.5 AND id1 IN (\'" + "\',\'".join(recipenodes) + "\') AND id2 IN (\'" + "\',\'".join(recipenodes) + "\')")
-	jaccardTup = cursor.fetchall()
-
-	print "Adding jaccard distances to graph..."
-	if jaccardTup:
-		Grecipes.add_weighted_edges_from(jaccardTup)
-
-	counter = 0;
-	#for each recipe node that we need to add to the graph
-	edges = list(set([ (rn, prn) for rn in candidateRecipes for ingrnode in G.neighbors(rn) for prn in G.neighbors(ingrnode)]))
-	print "Adding ", len(edges), " edges..."
-	for rn, prn in edges:
-		counter+=1
-		if counter%10000==0: print counter, " edges added."
-		#look through each node already in graph and see if we should add an edge
-		#skip if same node
-		if rn == prn: continue
-		#skip if edge already assigned
-		if ((rn, prn) in Grecipes.edges(rn)) or ((prn, rn) in Grecipes.edges(rn)): continue
-		#find jaccard index between nodes
-		jaccard = Jaccard(G.neighbors(rn), G.neighbors(prn))
-		cursor.execute("INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES (\'"+rn+"\',\'"+prn+"\',"+str(jaccard)+")")
-		#if they have more than one member in common
-		if jaccard>0.5:
-			Grecipes.add_weighted_edges_from([(rn, prn, jaccard)])
-	return Grecipes
-
 
 if __name__ == "__main__":
 	baseIngredients = ['eggs','all-purpose flour','sugar','salt','baking soda','vanilla extract','baking powder']
