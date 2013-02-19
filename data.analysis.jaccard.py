@@ -1,20 +1,16 @@
 #!/Users/apple/Desktop/Work/Scripts/Insight/venv/bin/python
 
 #import pymongo #==2.4.2
-import json
+
 import sys
 import re
 import unicodedata
 from collections import *
 import time
-import pymongo
 import MySQLdb as sql
-import pprint
 import re
 import copy
 import numpy as np
-import scipy as sp
-import pandas as pd
 import nltk
 import pickle
 import networkx as nx
