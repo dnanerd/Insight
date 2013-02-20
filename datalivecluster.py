@@ -171,18 +171,27 @@ def filterRecipeGraph(Gref, cutoff):
 
 
 def getTopRatedRecipe(recipes):
+	#DESCRIPTION: 
+	# Given a list of recipes, find the images associated with each recipe
+	# From list of images, pick random image to display as icon
+	# if a large high res image exists, select from high res images
+	# If no high res image exists, select from lower res yummly icon
+	# else: show default no-img-available photo
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
 	#select the top races recipes in this list
 	defaultimgurl = "static/imgunavailable.png"
-	cmd = "SELECT id, rating, imgurl, imgurllg FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
-	cursor.execute(cmd) 
+	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
+	cursor.execute(cmd)
 	toprecords = cursor.fetchall()
-	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords]
-	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords if imgurl!='NULL']
-	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg in toprecords if imgurllg!='NULL']
-	if len(largeimagerecords)>0:
-		return random.choice(imagerecords)
+	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords]
+	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords if imgurl!='NULL']
+	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg!='NULL' and '{{' not in imgurllg]
+	curatedimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
+	if len(curatedimagerecords)>0:
+		return random.choice(curatedimagerecords)
+	elif len(largeimagerecords)>0:
+		return random.choice(largeimagerecords)
 	elif len(imagerecords)>0:
 		return random.choice(imagerecords)
 	else:

@@ -67,22 +67,6 @@ def result2():
 
     return render_template('variations.html', query=search, totalresults = total, searchJSON=searchjsonObject, searchJSON2=searchjsonObject2)
 
-
-@app.route('/result3', methods=['GET', 'POST'])
-def result3():
-    results = request.form.getlist('links[]')
-    total = len(results)
-    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
-#    clusters = dlg.getClusters(searchGrecipes)
-    clusters = dlg.getPartitions(searchGrecipes)
-    cutoff = min(1000, len(clusters))
-#    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
-    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff)
-#    searchjsonObject2 = {'object':'searchjsonObject'}
-    searchjsonObject2 = [tup[2] for tup in searchjsonObject[0]['links']]
-
-    return render_template('infinite_scroll.html', query=search, totalresults = total, searchJSON=searchjsonObject, searchJSON2=searchjsonObject2)
-
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipes():
     links = request.form.getlist('links[]')

@@ -20,6 +20,7 @@ import math
 #import matplotlib as mpl
 import dataliveloadgraph
 import datalivesearch
+import datalivecluster as dlc
 
 
 def retrieveSearchRecords(searchResultFile):
@@ -170,25 +171,6 @@ def filterRecipeGraph(Gref, cutoff):
 	return Gnew
 
 
-
-def getTopRatedRecipe(recipes):
-	db = sql.connect("localhost",'testuser','testpass',"test" )
-	cursor=db.cursor()
-	#select the top races recipes in this list
-	defaultimgurl = "static/imgunavailable.png"
-	cmd = "SELECT id, rating, imgurl, imgurllg FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
-	cursor.execute(cmd) 
-	toprecords = cursor.fetchall()
-	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords]
-	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg in toprecords if imgurl!='NULL']
-	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg in toprecords if imgurllg!='NULL']
-	if len(largeimagerecords)>0:
-		return random.choice(imagerecords)
-	elif len(imagerecords)>0:
-		return random.choice(imagerecords)
-	else:
-		return (random.choice(allrecords)[0], defaultimgurl)
-
 def getIngredientFrequencies(rids):
 	db = sql.connect("localhost",'testuser','testpass',"test" )
 	cursor=db.cursor()
@@ -275,6 +257,8 @@ def sigmoid(x):
   return 1 / (1 + math.exp(-x))
 
 def getCentroidRecipe(recipeids, ingrFreq):
+	#define centroid recipe as the recipe in the cluster which (a) contains as many "essential" as possible, and (b) contains as few "non-essential" ingredients as possible
+
 	ingrFreqHash = dict(ingrFreq)
 	for ingr, freq in ingrFreq:
 		if freq>0.6:
@@ -303,7 +287,7 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 			links = cursor.fetchall()
 			db.close()
 			urlDict = dict([(rid, url) for rid, name, url in links])			
-			toprecipeimg = getTopRatedRecipe(recipes)[1]
+			toprecipeimg = dlc.getTopRatedRecipe(recipes)[1]
 			#defaultimgurl = "static/imgunavailable.png"
 			ingrCounts = getIngredientFrequencies(recipes)
 			ingrCountsDict = dict(ingrCounts)
@@ -339,7 +323,13 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 					name = "without " + depletion[-1][0]
 				else:
 					name = "Basic recipe"
-			retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'centroid_recipe_url': centroid_recipe_url, 'centroid_recipe_name': centroid_recipe_name, 'centroid_recipe_ingredients': centroid_recipe_ingredients_sorted, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
+			merged = 0
+			for value in retval:
+				if value['name']==name:
+					#merge clusters
+					merged = 1
+			if merged==0:
+				retval.append({'label': "box"+str(counter), 'name': name, 'count': len(recipes), 'toprecipeimg': toprecipeimg, 'centroid_recipe_url': centroid_recipe_url, 'centroid_recipe_name': centroid_recipe_name, 'centroid_recipe_ingredients': centroid_recipe_ingredients_sorted, 'ingrFreq': ingrCounts, 'enrichment':enrichment, 'depletion': depletion, 'displaytype':displaytype, 'links': links})
 	return retval
 
 

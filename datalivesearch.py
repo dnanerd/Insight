@@ -79,11 +79,6 @@ def filterGraphByRecipeID(G, Grecipes, Gingredients, nodes):
 	ingrNodes = list(set([b for n in searchGrecipes.nodes() for b in G.neighbors(n)]))
 	ingr_to_remove = [ n for n in Gingredients.nodes() if n not in ingrNodes]
 	searchGingredients = Gingredients
-#	searchGingredients = nx.subgraph(Gingredients, ingrNodes)
-#	searchGingredients.remove_nodes_from(ingr_to_remove)
-#	edges = searchGingredients.edges(keys=True)
-#	edges_to_remove = [(ingr1, ingr2, recipe) for (ingr1, ingr2, recipe) in edges if recipe in recipe_to_remove]
-#	searchGingredients.remove_edge_from(edges_to_remove)
 
 	searchG = nx.subgraph(G, nodes.extend(ingrNodes))
 	searchG.remove_nodes_from(recipe_to_remove)

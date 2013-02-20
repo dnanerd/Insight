@@ -68,7 +68,7 @@
   {% for thisCluster in searchJSON %}
     {% if thisCluster['count']>2 %}
       {% if thisCluster == searchJSON[0] %}                 
-        <div class="box col5">
+        <div class="box col4">
           <h1>Basic Recipe: {{thisCluster['name']}}</h1>
           <p>
             <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">

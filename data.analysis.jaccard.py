@@ -28,14 +28,16 @@ def calculateRecipeJaccardIndices():
 
 	lengths = [2000,4000,6000,8000,10000,12000,14000,16000,18000,20000,22000,24000,26000,28000,30000,32000,34000,36000,38000,40000]
 	for length in lengths:
-		filename = "pythonpp"+str(length)+".out"
+		filename = "../Insightdata/pythonpp"+str(length)+".out"
 		sys.stderr.write("Processing "+ filename)
 		f = open(filename)
 		for line in f:
 			linear = line.split(" ")
 			if len(linear)==3:
-				cmd = "INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES(\'"+mysqlify(linear[0])+"\',\'"+mysqlify(linear[1])+"\',"+linear[2]+")"
-				cursor.execute(cmd)
+				if float(linear[2])>=0.5:
+					cmd = "INSERT IGNORE INTO recipejaccard(id1, id2, jaccard) VALUES(\'"+mysqlify(linear[0])+"\',\'"+mysqlify(linear[1])+"\',"+linear[2]+")"
+					cursor.execute(cmd)
+
 #			else:
 #				print line
 		f.close()
@@ -68,7 +70,7 @@ def addEdgesToGraph():
 			linear = tuple(line.split(" "))
 			if len(linear)==3:
 				try:
-					if linear[2]>=0.8:
+					if linear[2]>=0.5:
 						edgeList.append(linear)
 				except:
 					sys.stderr.write("Graph insert error")
@@ -80,5 +82,6 @@ def addEdgesToGraph():
 	sys.stderr.write("Pickling...")
 	pickle.dump(Grecipes,open("Grecipejaccard.pickle", 'w'))
 
-initGraph()
-addEdgesToGraph()
+#initGraph()
+#addEdgesToGraph()
+calculateRecipeJaccardIndices()
