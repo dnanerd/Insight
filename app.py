@@ -60,7 +60,7 @@ def result2():
 #    clusters = dlg.getClusters(searchGrecipes)
     clusters = dlg.getPartitions(searchGrecipes)
     cutoff = min(1000, len(clusters))
-#    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
+    #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
     searchjsonObject = dlg.outputScreenJSON(clusters, cutoff, recipesHash)
 #    searchjsonObject2 = {'object':'searchjsonObject'}
     searchjsonObject2 = [tup[2] for tup in searchjsonObject[0]['links']]
@@ -77,26 +77,6 @@ def recipes():
 def search():
     return render_template('search.html')
 
-#@app.route('/searching', methods=['GET', 'POST'])
-#def searching():
-#    return render_template('searching.html', query = request.args.getList('search'))
-
-
-@app.route('/oldresult', methods=['GET', 'POST'])
-def oldresult():
-    search = request.args.getlist('search')[0].decode('string_escape')
-    resultFile = "searchrecordids.txt"
-    results = dls.searchRecipes(search, resultFile)
-    total = len(results)
-    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
-#    clusters = dlg.getClusters(searchGrecipes)
-    clusters = dlg.getPartitions(searchGrecipes)
-    cutoff = min(5, len(clusters))
-#    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
-    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff)
-
-    return render_template('resultScreen1.html', query=search, totalresults = total, searchJSON=searchjsonObject)
-
 
 @app.route('/howitworks')
 def howitworks():
@@ -104,7 +84,7 @@ def howitworks():
 
 @app.route('/data')
 def data():
-    return render_template('crossfilter.dummy.html')
+    return render_template('analysis.html')
 
 @app.route('/contact')
 def contact():

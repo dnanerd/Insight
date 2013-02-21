@@ -37,16 +37,17 @@
         margin-bottom: 15px;
         padding: 7px 9px;
       }
-      .node {
-      stroke: #fff;
-      stroke-width: 1.5px;
+      .strokeme
+      {
+          color: black;
+          font-size: 30px;
+          font-weight: bold;
+          text-shadow:
+          -1px -1px 0 #D8D5D2,
+          1px -1px 0 #D8D5D2,
+          -1px 1px 0 #D8D5D2,
+          1px 1px 0 #D8D5D2;  
       }
-
-      .link {
-        stroke: #999;
-        stroke-opacity: .6;
-      }
-
     </style>
     <link href="../static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -88,12 +89,33 @@
 
     <div class="container">
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/16656340" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen webkitallowfullscreen mozallowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="http://www.slideshare.net/dna_nerd/diane-wu-insight-demo-16656340" title="Diane wu insight demo" target="_blank">Diane wu insight demo</a> </strong> from <strong><a href="http://www.slideshare.net/dna_nerd" target="_blank">Diane Wu</a></strong> </div>
+    <h4>Recipes typically have 10 ingredients</h4>
+    There are 40,000 recipes in the database.<br>
+    <img src="/static/recipeDegree.jpg" alt="Histogram of recipe connectedness" height="300" width="300">
+    <br>
+    <br>
+    <h4>Ingredients exhibit extreme long tail distributions</h4>
+    There are 3800 recipes in the database.<br>
+    - "sugar" is represented in 69% of all recipes.<br>
+    - 1066 ingredients are present in only one recipe.<br>
+    <img src="/static/ingredientDegrees.jpg" alt="Histogram of ingredient connectedness" height="200" width="600">
 
-
-      <script src="http://d3js.org/d3.v3.min.js"></script>
-          <script src="static/js/jsnetworkx.js"></script>
-
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../static/bootstrap/js/jquery.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-transition.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-alert.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-modal.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-dropdown.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-scrollspy.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-tab.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-tooltip.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-popover.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-button.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-collapse.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-carousel.js"></script>
+    <script src="../static/bootstrap/js/bootstrap-typeahead.js"></script>
 
   </body>
 </html>

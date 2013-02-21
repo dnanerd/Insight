@@ -244,15 +244,19 @@ def getClusters(searchGrecipes):
 	return recipe_components
 
 def getPartitions(searchGrecipes):
-	partition = community.best_partition(searchGrecipes)
-	partitionArray = defaultdict(list)
-	for k, v in partition.iteritems():
-		partitionArray[v].append(k)
-	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-	mergedPartitions = combineClusters(sortedPartitions)
-#	print mergedPartitions[0]
-	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
-	return components
+	if len(searchGrecipes.edges())>0:
+		partition = community.best_partition(searchGrecipes)
+		partitionArray = defaultdict(list)
+		for k, v in partition.iteritems():
+			partitionArray[v].append(k)
+		sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
+		mergedPartitions = combineClusters(sortedPartitions)
+	#	print mergedPartitions[0]
+		components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
+		return components
+	else:
+		return searchGrecipes
+
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
 

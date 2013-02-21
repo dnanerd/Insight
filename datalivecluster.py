@@ -26,11 +26,6 @@ def retrieveSearchRecords(searchResultFile):
 	results = f.read().split("\n")
 	return results
 
-def Jaccard(list1, list2):
-	intersection = list(set(list1) & set(list2))
-	union = list(set(list1) | set(list2))
-	return float(len(intersection))/float(len(union))
-
 def highest_centrality(cent_dict, n=1):
      """Returns a tuple (node,value) with the node
  with largest value from Networkx centrality dictionary."""
@@ -40,66 +35,6 @@ def highest_centrality(cent_dict, n=1):
      cent_items.sort()
      cent_items.reverse()
      return tuple(reversed(cent_items[0:n]))
-
-def loadRecipeGraph(recipenodes, defaultGFile, loadFromFile, query):
-	#create recipe graph
-	if loadFromFile and os.path.exists(defaultGFile):
-		print "loadRecipeGraph: recipe graph file exists. loading..."
-		Grecipes = pickle.load(open(defaultGFile))
-		print len(Grecipes.nodes()), " nodes in jaccard graph"
-		return Grecipes
-	else:
-		Grecipes = nx.Graph()
-		print "loadRecipeGraph: Adding ", len(recipenodes), " nodes..."
-		Grecipes.add_nodes_from(recipenodes)
-		print "loadRecipeGraph: Retrieving jaccard scores from database..."	
-		db = sql.connect("localhost",'testuser','testpass',"test" )
-		cursor = db.cursor()
-		cursor.execute("SELECT * FROM recipejaccard WHERE jaccard>0.2") 
-		jaccardAll = cursor.fetchall()
-		jaccardTup = [(id1,id2,jac) for id1,id2,jac in jaccardAll if id1 in recipenodes and id2 in recipenodes]
-		db.close()
-
-		print "loadRecipeGraph: Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
-		if jaccardTup:
-			Grecipes.add_weighted_edges_from(jaccardTup)
-			f = open(defaultGFile, 'w')
-			pickle.dump(Grecipes, f)
-			f.close()
-		print len(Grecipes.nodes()), " nodes in jaccard graph"
-		pickle.dump(Grecipes, open(defaultGFile, 'r'))
-		return Grecipes
-
-def loadIngredientGraph(defaultGFile, loadFromFile):
-
-	if loadFromFile and os.path.exists(defaultGFile):
-		print "loadIngredientGraph: ingredient graph file exists. loading..."
-		Gingredients = pickle.load(open(defaultGFile))
-		print len(Gingredients.nodes()), " nodes in jaccard graph"
-		return Gingredients
-	else:
-		db = sql.connect("localhost",'testuser','testpass',"test" )
-		cursor = db.cursor()
-		cmd = "SELECT DISTINCT normingredient FROM normrecipeingredients"
-		ingredientTup = cursor.execute(cmd)
-
-		Gingredients = nx.Graph()
-		print "loadIngredientGraph: Adding ", len(ingredientnodes), " nodes..."
-		Gingredients.add_nodes_from(ingredientnodes)
-		print "loadIngredientGraph: Retrieving jaccard scores from database..."	
-		cursor.execute("SELECT * FROM ingredientjaccard") 
-		jaccardTup = cursor.fetchall()
-		db.close()
-
-		print "loadIngredientGraph: Add jaccard scores to graph (", len(jaccardTup)," edges in total)..."
-		if jaccardTup:
-			Gingredients.add_weighted_edges_from(jaccardTup)
-			f = open(defaultGFile, 'w')
-			pickle.dump(Gingredients, f)
-			f.close()
-		print len(Gingredients.nodes()), " nodes in jaccard graph"
-		pickle.dump(Gingredients, open(defaultGFile, 'r'))
-		return Gingredients
 
 
 def getClusterLabel(ids, recordsHash):
@@ -209,77 +144,6 @@ def getIngredientFrequencies(rids):
 
 	db.close()
 	return retval
-
-def findEnrichedIngredients(baseFrequency, sampleFrequency):
-	baseDict = dict(baseFrequency)
-	sampleDict = dict(sampleFrequency)
-	smoothing = 0.05
-	ingredients = list(set([ingr for ingr, freq in baseFrequency if freq>0]) | set([ingr for ingr, freq in sampleFrequency if freq>0]))
-	ingrDiff = {}
-	for ingr in ingredients:
-		sampfreq = basefreq = smoothing
-		if ingr in sampleDict: sampfreq+=sampleDict[ingr]
-		if ingr in baseDict: basefreq+=baseDict[ingr]
-
-		ingrDiff[ingr] = math.log((sampfreq+smoothing)/(basefreq+smoothing), 2)
-	return sorted(ingrDiff.iteritems(), key=lambda tup: tup[1], reverse=True)
-
-def mergeClusters(cluster1, cluster2, listOfClusters):
-	print "merging clusters ", cluster1, " and ", cluster2
-	print "CLUSTER 1"
-	print ",".join(listOfClusters[cluster1])
-	print "CLUSTER 2"
-	print ",".join(listOfClusters[cluster2])
-
-	listOfClusters[cluster1].extend(listOfClusters[cluster2])
-	del listOfClusters[cluster2]
-	return listOfClusters
-
-def hierarchicalCluster(listOfClusters):
-	listOfFrequencies = []
-	for cl in listOfClusters:
-		listOfFrequencies.append(getIngredientFrequencies(cl))
-	for i, freq1 in enumerate(listOfFrequencies):
-		for j, freq2 in enumerate(listOfFrequencies):
-			if i>=j: continue
-			logRatios = findEnrichedIngredients(freq1,freq2)
-			enrichment = [(ingr, log) for ingr, log in logRatios if log>=2]
-			depletion = [(ingr, log) for ingr, log in logRatios if log<=-2]
-			if len(enrichment)==0 and len(depletion)==0:
-				print "MERGE!"
-				return mergeClusters(i,j,listOfClusters)
-			elif (len(enrichment) + len(depletion))<3:
-				print "Enrichment: ", len(enrichment)
-				print "Depletion: ", len(depletion)
-				print "MERGE!"
-				return mergeClusters(i,j,listOfClusters)
-	return False
-
-def combineClusters(listOfClusters):
-	print "Combine clusters..."
-	cluster = hierarchicalCluster(listOfClusters)
-	if (cluster):
-		print "Clustered!"
-		return combineClusters(cluster)
-	else:
-		print "STOP"
-		return listOfClusters
-
-def getClusters(searchGrecipes):
-	recipe_components = nx.connected_component_subgraphs(searchGrecipes)
-	return recipe_components
-
-def getPartitions(searchGrecipes):
-	partition = community.best_partition(searchGrecipes)
-	partitionArray = defaultdict(list)
-	for k, v in partition.iteritems():
-		partitionArray[v].append(k)
-	sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-#	mergedPartitions = combineClusters(sortedPartitions)
-#	print mergedPartitions[0]
-	components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
-	return components
-
 
 def outputScreenJSON(recipeClusterList, maxcutoff, searchG):
 	recordsHash = pickle.load(open("idToNameHash.pickle"))

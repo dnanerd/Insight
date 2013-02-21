@@ -60,7 +60,7 @@ def searchRecipes(query, searchResultFile):
 		#	cursor.execute("""SELECT * FROM units""")
 		querywords = nltk.word_tokenize(query)
 		print "searching for results"
-		cursor.execute("SELECT id FROM records WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'")
+		cursor.execute("SELECT DISTINCT id FROM normrecipeingredients WHERE id REGEXP \'.*" + ".*".join(querywords)+".*\'")
 		records = cursor.fetchall()
 		print "printing results"
 		f = open(searchResultFile,'w')
