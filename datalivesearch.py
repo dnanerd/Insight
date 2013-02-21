@@ -41,7 +41,7 @@ def searchRecipes(query, searchResultFile):
 			errors = 0
 			for r in recipeids:
 				try:
-					recipeids[recipeids.index(r)] = r.decode('string_escape')
+					recipeids[recipeids.index(r)] = r.decode('utf-8')
 				except:
 					errors+=1
 					recipeids.remove(r)

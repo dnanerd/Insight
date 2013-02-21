@@ -24,18 +24,23 @@ def createRecipeGraph(defaultGFile, loadFromFile):
 	#Note: this is a hackaround. Ideally we should calculate the jaccard distance only between those records in recipe table
 	#TO DO: make databases consistent
 
-	jlimit = 0.75 #set the min jaccard distance for nodes to be connected
+	jlimit = 0.7 #set the min jaccard distance for nodes to be connected
 	#create recipe graph
 	if loadFromFile and os.path.exists(defaultGFile):
+		#if the network has already been generated and pickled, load it
 		print "loadRecipeGraph: recipe graph file exists. loading..."
 		Grecipes = pickle.load(open(defaultGFile))
 		print len(Grecipes.nodes()), " nodes in jaccard graph"
 		return Grecipes
 	else:
 		Grecipes = nx.Graph()
-		print "loadRecipeGraph: Retrieving jaccard scores from database..."	
+		print "loadRecipeGraph: Retrieving jaccard scores from database..."
+		#open database connection
 		db = sql.connect("localhost",'testuser','testpass',"test" )
 		cursor = db.cursor()
+
+		#since jaccard distances are bidirectional, only one direction needs to be stored
+		#therefore we need to 
 		cursor.execute("SELECT id1, id2, jaccard FROM recipejaccard WHERE jaccard>="+str(jlimit)) 
 		jaccardTup = cursor.fetchall()
 		cursor.execute("SELECT DISTINCT id1 FROM recipejaccard WHERE jaccard>="+str(jlimit) )
@@ -92,10 +97,59 @@ def getRecipeIngredientGraph(defaultGFile, loadFromFile):
 		f.close()
 		return G
 
-def loadApp():
-	unitHash = pickle.load(open("unitNormHash.pickle"))
-	recordsHash = pickle.load(open("idToNameHash.pickle"))
+def loadRecipeHashFromDB():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+	cursor.execute("SELECT id, normingredient FROM normrecipeingredients")
+	ingredientTuples = cursor.fetchall()
+	recipesHash = defaultdict(list)
+	for rid, ingr in ingredientTuples:
+		recipesHash[rid].append(ingr)
+	db.commit()
+	db.close()
+	pickle.dump(recipesHash,open("idToIngredient.pickle", 'w'))
+	return recipesHash
+def loadRecipeHashFromPickle():
 	recipesHash = pickle.load(open("idToIngredient.pickle"))
+	return recipesHash
+
+def loadUnitHashFromDB():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+	cursor.execute("SELECT keyword, unit FROM units")
+	unitTuples = cursor.fetchall()
+	unitHash = dict(unitTuples)
+	db.commit()
+	db.close()
+	pickle.dump(unitHash,open("unitNormHash.pickle", 'w'))
+	return unitHash
+def loadUnitHashFromPickle():
+	unitHash = pickle.load(open("unitNormHash.pickle"))
+	return unitHash
+
+
+def loadRecordNameFromDB():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor=db.cursor()
+	cursor.execute("SELECT id, name FROM records")
+	recordsTuples = cursor.fetchall()
+	recordsHash = dict(recordsTuples)
+	db.commit()
+	db.close()
+	pickle.dump(recordsHash,open("idToNameHash.pickle", 'w'))
+	return recordsHash
+def loadRecordNameFromPickle():
+	recordsHash = pickle.load(open("idToNameHash.pickle"))
+	return recordsHash
+
+def loadApp():
+
+	unitHash = loadUnitHashFromDB()
+	recordsHash = loadRecordNameFromDB()
+	recipesHash = loadRecipeHashFromDB()
+#	unitHash = loadUnitHashFromFile()
+#	recordsHash = loadRecordNameFromFile()
+#	recipesHash = loadRecipeHashFromFile()
 
 	defaultGFile = "Gjaccard.pickle"
 	defaultGrecipesFile = "Grecipesjaccard.pickle"

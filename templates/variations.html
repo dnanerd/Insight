@@ -66,7 +66,7 @@
   <div id="container" class="transitions-enabled infinite-scroll clearfix">
    
   {% for thisCluster in searchJSON %}
-    {% if thisCluster['count']>2 %}
+    {% if thisCluster['count']>0 %}
       {% if thisCluster == searchJSON[0] %}                 
         <div class="box col4">
           <h1>Basic Recipe: {{thisCluster['name']}}</h1>

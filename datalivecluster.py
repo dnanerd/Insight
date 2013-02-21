@@ -105,7 +105,7 @@ def filterRecipeGraph(Gref, cutoff):
 
 
 
-def getTopRatedRecipe(recipes):
+def getTopRatedRecipe(recipes, results):
 	#DESCRIPTION: 
 	# Given a list of recipes, find the images associated with each recipe
 	# From list of images, pick random image to display as icon
@@ -119,16 +119,23 @@ def getTopRatedRecipe(recipes):
 	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
 	cursor.execute(cmd)
 	toprecords = cursor.fetchall()
+	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(results)+"\') ORDER BY rating DESC"
+	cursor.execute(cmd)
+	broadTup = cursor.fetchall()
+
 	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords]
-	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords if imgurl!='NULL']
-	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg!='NULL' and '{{' not in imgurllg]
-	curatedimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
+	broadrecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in broadTup if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
+	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords if imgurl and imgurl!='NULL']
+	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg]
+	curatedimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
 	if len(curatedimagerecords)>0:
 		return random.choice(curatedimagerecords)
 	elif len(largeimagerecords)>0:
 		return random.choice(largeimagerecords)
 	elif len(imagerecords)>0:
 		return random.choice(imagerecords)
+	elif len(broadrecords)>0:
+		return random.choice(broadrecords)
 	else:
 		return (random.choice(allrecords)[0], defaultimgurl)
 
@@ -159,7 +166,7 @@ def outputScreenJSON(recipeClusterList, maxcutoff, searchG):
 			cursor.execute("SELECT id, name, sourceurl FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\')")
 			links = cursor.fetchall()
 			db.close()
-			toprecipeimg = getTopRatedRecipe(recipes)[1]
+			toprecipeimg = getTopRatedRecipe(recipes, recipes)[1]
 			name = getClusterLabel(recipes, recordsHash)
 
 			ingrCounts = getIngredientFrequencies(recipes)
@@ -241,7 +248,7 @@ def findNameGroups(searchresults):
 	for i, (name, score) in enumerate(large_groups):
 		label = "namebox"+str(i)
 		rids = [rid for rid in recordsHash.keys() if name in recordsHash[rid]]
-		toprecipeimg = getTopRatedRecipe(rids)[1]
+		toprecipeimg = getTopRatedRecipe(rids, rids)[1]
 		idGroups.append({'label': label, 'name': name, 'count': len(rids), 'toprecipeimg': toprecipeimg, 'ids':rids})
 	return idGroups
 

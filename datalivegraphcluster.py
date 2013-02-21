@@ -17,9 +17,8 @@ import networkx as nx
 import community
 import random
 import math
-#import matplotlib as mpl
-import dataliveloadgraph
-import datalivesearch
+import dataliveloadgraph as dll
+import datalivesearch as dls
 import datalivecluster as dlc
 
 
@@ -243,19 +242,51 @@ def getClusters(searchGrecipes):
 	recipe_components = nx.connected_component_subgraphs(searchGrecipes)
 	return recipe_components
 
-def getPartitions(searchGrecipes):
-	if len(searchGrecipes.edges())>0:
-		partition = community.best_partition(searchGrecipes)
-		partitionArray = defaultdict(list)
-		for k, v in partition.iteritems():
-			partitionArray[v].append(k)
-		sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
-		mergedPartitions = combineClusters(sortedPartitions)
-	#	print mergedPartitions[0]
-		components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
-		return components
+def getPartitions(searchGrecipes, results):
+	print "RESULTS!!!\n\n\n"
+	print results[0:5]
+	if len(searchGrecipes.nodes())>10:
+		if len(searchGrecipes.edges())>0:
+			partition = community.best_partition(searchGrecipes)
+			partitionArray = defaultdict(list)
+			for k, v in partition.iteritems():
+				partitionArray[v].append(k)
+			sortedPartitions = sorted(partitionArray.itervalues(), key=lambda partition: len(partition), reverse=True)
+			mergedPartitions = combineClusters(sortedPartitions)
+		#	print mergedPartitions[0]
+			components = [nx.subgraph(searchGrecipes,partition) for partition in sortedPartitions]
+			return components
+		else:
+			return searchGrecipes
 	else:
-		return searchGrecipes
+		newG = nx.Graph()
+		print "loadRecipeGraph: Retrieving jaccard scores from database..."
+		#open database connection
+		db = sql.connect("localhost",'testuser','testpass',"test" )
+		cursor = db.cursor()
+
+		#since jaccard distances are bidirectional, only one direction needs to be stored
+		#therefore we need to 
+		#select without jaccard limit
+		cmd = "SELECT id1, id2, jaccard FROM recipejaccard WHERE id1 IN (\'"+"\',\'".join(results)+"\')"
+		cursor.execute(cmd) 
+		resultTuples = cursor.fetchall()
+		db.close()
+		jaccardTuples = [(rid1, rid2, jaccard) for rid1, rid2, jaccard in resultTuples if rid1 in results and rid2 in results]
+		if len(jaccardTuples)==len(searchGrecipes.nodes()):
+			return getClusters(searchGrecipes)
+		elif jaccardTuples:
+			recipenodes1 = [rid1 for rid1, rid2, jaccard in jaccardTuples]
+			recipenodes2 = [rid2 for rid1, rid2, jaccard in jaccardTuples]
+
+			newG.add_nodes_from(recipenodes1)
+			newG.add_nodes_from(recipenodes2)
+			print "loadRecipeGraph: Add jaccard scores to graph (", len(jaccardTuples)," edges in total)..."
+			newG.add_weighted_edges_from(jaccardTuples)
+			return getPartitions(newG, results)
+		else:
+			return getClusters(searchGrecipes)
+
 
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
@@ -276,8 +307,8 @@ def getCentroidRecipe(recipeids, ingrFreq):
 	maxRecipes = [rid for rid, score in sortedRecipes if score==maxScore]
 	return random.choice(maxRecipes)
 
-def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
-	recordsHash = pickle.load(open("idToNameHash.pickle"))
+def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash, results):
+	recordsHash = dll.loadRecordNameFromPickle()
 	cutoff = min(maxcutoff, len(recipeClusterList))
 	retval = []
 	counter=0
@@ -291,12 +322,12 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 			links = cursor.fetchall()
 			db.close()
 			urlDict = dict([(rid, url) for rid, name, url in links])			
-			toprecipeimg = dlc.getTopRatedRecipe(recipes)[1]
+			toprecipeimg = dlc.getTopRatedRecipe(recipes, results)[1]
 			#defaultimgurl = "static/imgunavailable.png"
 			ingrCounts = getIngredientFrequencies(recipes)
 			ingrCountsDict = dict(ingrCounts)
 
-			centroid_recipe = getCentroidRecipe(recipes, ingrCounts).decode('string_escape')
+			centroid_recipe = getCentroidRecipe(recipes, ingrCounts).decode('utf-8')
 			centroid_recipe_url = urlDict[centroid_recipe]
 			centroid_recipe_name = recordsHash[centroid_recipe]
 			centroid_recipe_ingredients = recipesHash[centroid_recipe]
@@ -338,6 +369,6 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash):
 
 
 if __name__ == "__main__":
-	components = getPartitions(searchGrecipes)
-	search1jsonObject = outputScreenJSON(components, cutoff, searchG)
+	components = getPartitions(searchGrecipes, searchGrecipes.nodes())
+	search1jsonObject = outputScreenJSON(components, cutoff, searchG, results)
 
