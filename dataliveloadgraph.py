@@ -121,7 +121,7 @@ def loadUnitHashFromDB():
 	unitHash = dict(unitTuples)
 	db.commit()
 	db.close()
-#	pickle.dump(unitHash,open("unitNormHash.pickle", 'w'))
+	pickle.dump(unitHash,open("unitNormHash.pickle", 'w'))
 	return unitHash
 def loadUnitHashFromPickle():
 	unitHash = pickle.load(open("unitNormHash.pickle"))
@@ -136,7 +136,7 @@ def loadRecordNameFromDB():
 	recordsHash = dict(recordsTuples)
 	db.commit()
 	db.close()
-#	pickle.dump(recordsHash,open("idToNameHash.pickle", 'w'))
+	pickle.dump(recordsHash,open("idToNameHash.pickle", 'w'))
 	return recordsHash
 def loadRecordNameFromPickle():
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
@@ -156,7 +156,7 @@ def loadJaccardFromDB():
 	jaccardHash = defaultdict(dict)
 	for rid1, rid2, jaccard in jaccardTuples:
 		jaccardHash[rid1][rid2] = jaccardHash
-#	pickle.dump(jaccardHash,open("jaccard.pickle", 'w'))
+	pickle.dump(jaccardHash,open("jaccard.pickle", 'w'))
 	return jaccardHash
 
 def loadApp():
