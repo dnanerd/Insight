@@ -142,6 +142,23 @@ def loadRecordNameFromPickle():
 	recordsHash = pickle.load(open("idToNameHash.pickle"))
 	return recordsHash
 
+def loadJaccardFromDB():
+	db = sql.connect("localhost",'testuser','testpass',"test" )
+	cursor = db.cursor()
+
+	#since jaccard distances are bidirectional, only one direction needs to be stored
+	#therefore we need to 
+	#select without jaccard limit
+	cmd = "SELECT id1, id2, jaccard FROM recipejaccard"
+	cursor.execute(cmd) 
+	jaccardTuples = cursor.fetchall()
+	db.close()
+	jaccardHash = defaultdict(dict)
+	for rid1, rid2, jaccard in jaccardTuples:
+		jaccardHash[rid1][rid2] = jaccardHash
+	pickle.dump(jaccardHash,open("jaccard.pickle", 'w'))
+	return jaccardHash
+
 def loadApp():
 
 	unitHash = loadUnitHashFromDB()

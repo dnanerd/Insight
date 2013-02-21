@@ -260,6 +260,8 @@ def getPartitions(searchGrecipes, results):
 		else:
 			return searchGrecipes
 	else:
+		###REMOVE THIS LINE IF YOU HAVE ROOM FOR STORAGE!
+		return getClusters(searchGrecipes)
 		newG = nx.Graph()
 		print "loadRecipeGraph: Retrieving jaccard scores from database..."
 		#open database connection
