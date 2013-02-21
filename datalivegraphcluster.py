@@ -245,7 +245,8 @@ def getClusters(searchGrecipes):
 def getPartitions(searchGrecipes, results):
 	print "RESULTS!!!\n\n\n"
 	print results[0:5]
-	if len(searchGrecipes.nodes())>10:
+	MINSIZE = 10
+	if len(searchGrecipes.nodes())>MINSIZE:
 		if len(searchGrecipes.edges())>0:
 			partition = community.best_partition(searchGrecipes)
 			partitionArray = defaultdict(list)
@@ -273,9 +274,7 @@ def getPartitions(searchGrecipes, results):
 		resultTuples = cursor.fetchall()
 		db.close()
 		jaccardTuples = [(rid1, rid2, jaccard) for rid1, rid2, jaccard in resultTuples if rid1 in results and rid2 in results]
-		if len(jaccardTuples)==len(searchGrecipes.nodes()):
-			return getClusters(searchGrecipes)
-		elif jaccardTuples:
+		if jaccardTuples:
 			recipenodes1 = [rid1 for rid1, rid2, jaccard in jaccardTuples]
 			recipenodes2 = [rid2 for rid1, rid2, jaccard in jaccardTuples]
 
@@ -283,9 +282,10 @@ def getPartitions(searchGrecipes, results):
 			newG.add_nodes_from(recipenodes2)
 			print "loadRecipeGraph: Add jaccard scores to graph (", len(jaccardTuples)," edges in total)..."
 			newG.add_weighted_edges_from(jaccardTuples)
-			return getPartitions(newG, results)
-		else:
-			return getClusters(searchGrecipes)
+			if len(searchGrecipes.nodes())>MINSIZE:
+				return getPartitions(newG, results)
+			else:
+				return getClusters(searchGrecipes)
 
 
 def sigmoid(x):
