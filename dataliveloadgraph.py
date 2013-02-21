@@ -161,12 +161,12 @@ def loadJaccardFromDB():
 
 def loadApp():
 
-	unitHash = loadUnitHashFromDB()
-	recordsHash = loadRecordNameFromDB()
-	recipesHash = loadRecipeHashFromDB()
-#	unitHash = loadUnitHashFromFile()
-#	recordsHash = loadRecordNameFromFile()
-#	recipesHash = loadRecipeHashFromFile()
+#	unitHash = loadUnitHashFromDB()
+#	recordsHash = loadRecordNameFromDB()
+#	recipesHash = loadRecipeHashFromDB()
+	unitHash = loadUnitHashFromPickle()
+	recordsHash = loadRecordNameFromPickle()
+	recipesHash = loadRecipeHashFromPickle()
 
 	defaultGFile = "Gjaccard.pickle"
 	defaultGrecipesFile = "Grecipesjaccard.pickle"

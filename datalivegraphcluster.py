@@ -259,7 +259,7 @@ def getPartitions(searchGrecipes, results):
 			return searchGrecipes
 	else:
 		###REMOVE THIS LINE IF YOU HAVE ROOM FOR STORAGE!
-		return getClusters(searchGrecipes)
+#		return getClusters(searchGrecipes)
 
 		print "RESULTS!!!\n\n\n"
 		print results[0:5]
