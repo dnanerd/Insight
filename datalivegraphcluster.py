@@ -243,9 +243,7 @@ def getClusters(searchGrecipes):
 	return recipe_components
 
 def getPartitions(searchGrecipes, results):
-	print "RESULTS!!!\n\n\n"
-	print results[0:5]
-	MINSIZE = 10
+	MINSIZE = 2
 	if len(searchGrecipes.nodes())>MINSIZE:
 		if len(searchGrecipes.edges())>0:
 			partition = community.best_partition(searchGrecipes)
@@ -262,6 +260,10 @@ def getPartitions(searchGrecipes, results):
 	else:
 		###REMOVE THIS LINE IF YOU HAVE ROOM FOR STORAGE!
 		return getClusters(searchGrecipes)
+
+		print "RESULTS!!!\n\n\n"
+		print results[0:5]
+
 		newG = nx.Graph()
 		print "loadRecipeGraph: Retrieving jaccard scores from database..."
 		#open database connection
@@ -288,6 +290,7 @@ def getPartitions(searchGrecipes, results):
 				return getPartitions(newG, results)
 			else:
 				return getClusters(searchGrecipes)
+	return getClusters(searchGrecipes)
 
 
 def sigmoid(x):

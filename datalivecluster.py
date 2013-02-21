@@ -119,12 +119,12 @@ def getTopRatedRecipe(recipes, results):
 	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(recipes)+"\') ORDER BY rating DESC"
 	cursor.execute(cmd)
 	toprecords = cursor.fetchall()
-	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(results)+"\') ORDER BY rating DESC"
-	cursor.execute(cmd)
-	broadTup = cursor.fetchall()
+#	cmd = "SELECT id, rating, imgurl, imgurllg, sourcename FROM records WHERE id IN (\'"+"\',\'".join(results)+"\') ORDER BY rating DESC"
+#	cursor.execute(cmd)
+#	broadTup = cursor.fetchall()
 
 	allrecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords]
-	broadrecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in broadTup if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
+#	broadrecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in broadTup if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
 	imagerecords = [(rid, imgurl) for rid, rating, imgurl, imgurllg, sourcename in toprecords if imgurl and imgurl!='NULL']
 	largeimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg]
 	curatedimagerecords = [(rid, imgurllg) for rid, rating, imgurl, imgurllg,sourcename in toprecords if imgurllg and imgurllg!='NULL' and '{{' not in imgurllg and sourcename!='Food.com']
@@ -134,8 +134,8 @@ def getTopRatedRecipe(recipes, results):
 		return random.choice(largeimagerecords)
 	elif len(imagerecords)>0:
 		return random.choice(imagerecords)
-	elif len(broadrecords)>0:
-		return random.choice(broadrecords)
+#	elif len(broadrecords)>0:
+#		return random.choice(broadrecords)
 	else:
 		return (random.choice(allrecords)[0], defaultimgurl)
 
