@@ -66,11 +66,14 @@
   <div id="container" class="transitions-enabled infinite-scroll clearfix">
    
   {% for thisCluster in searchJSON %}
-    {% if thisCluster['count']>0 %}
+    {% if thisCluster['count']>1 %}
       {% if thisCluster == searchJSON[0] %}                 
         <div class="box col4">
           <h1>Basic Recipe: {{thisCluster['name']}}</h1>
           <p>
+            <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+              <h2>(See {{thisCluster['count']}} similar recipes)</h2>
+            </a>
               <a href = "{{thisCluster['centroid_recipe_url']}}" target="_blank">
             <div class="imgHover">
             <div class="hover">
@@ -95,12 +98,18 @@
             <h2>{{thisCluster['name']}}</h2>
           </a>
           <p>
+          <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+            <h3>(See {{thisCluster['count']}} similar recipes)</h3>
+          </a>
           </p>
 
         {% else %}
           <div class="box col2">
           <h2>{{thisCluster['name']}}</h2>
           <p>
+            <a id = "#{{thisCluster['labels']}}" onclick="getrecipes();" title="{{thisCluster['name']}}">
+              <h3>(See {{thisCluster['count']}} similar recipes)</h3>
+            </a>
  <!--           <div class="imgHover">
             <div class="hover">
               <h3>{{thisCluster['centroid_recipe_name']}}</h3>
