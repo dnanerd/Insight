@@ -71,16 +71,16 @@ def searchRecipes(query, searchResultFile):
 		db.close()
 	return searchresults
 
-def filterGraphByRecipeID(G, Grecipes, Gingredients, nodes):
-	recipe_to_remove = [ n for n in Grecipes.nodes() if n not in nodes]	
-	searchGrecipes = nx.subgraph(Grecipes, nodes)
+def filterGraphByRecipeID(G, Grecipes, Gingredients, recipeNodes):
+	recipe_to_remove = [ n for n in Grecipes.nodes() if n not in recipeNodes]	
+	searchGrecipes = nx.subgraph(Grecipes, recipeNodes)
 	searchGrecipes.remove_nodes_from(recipe_to_remove)
 
 	ingrNodes = list(set([b for n in searchGrecipes.nodes() for b in G.neighbors(n)]))
 	ingr_to_remove = [ n for n in Gingredients.nodes() if n not in ingrNodes]
 	searchGingredients = Gingredients
 
-	searchG = nx.subgraph(G, nodes.extend(ingrNodes))
+	searchG = nx.subgraph(G, recipeNodes + ingrNodes)
 	searchG.remove_nodes_from(recipe_to_remove)
 	searchG.remove_nodes_from(ingr_to_remove)
 

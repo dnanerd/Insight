@@ -146,6 +146,26 @@ def vectorizeIngredientsFromGraph(G, recipenodes, ingredientnodes):
 	frame = pd.DataFrame(ingrHash, index = ingredientnodes,columns = recipenodes, dtype=float).T.astype(float)
 	return frame
 
+def vectorizeIngredientsFromHash(recipeHash, recipeids = ''):
+	ingrHash = defaultdict(int)
+
+	for ingrList in recipeHash.values():
+		for ingr in ingrList:
+			ingrHash[ingr]+=1
+	ingredientnodes = sorted(ingrHash.keys(), key=lambda rid: ingrHash[rid], reverse=True)
+#	ingredientnodes = ingrHash.keys()
+
+	recipenodes = recipeids
+	if recipeids == '':
+		recipenodes = recipeHash.keys()
+
+	for rn in recipenodes:
+		ingrHash[rn] = [0]*len(ingredientnodes)
+		recipeIngr = recipeHash[rn]
+		for ing in recipeIngr:
+			ingrHash[rn][ingredientnodes.index(ing)] += 1
+	frame = pd.DataFrame(ingrHash, index = ingredientnodes,columns = recipenodes, dtype=float).T.astype(float)
+	return frame
 
 def vectorizeIngredients():
 	db = sql.connect("localhost",'testuser','testpass',"test" )
@@ -161,6 +181,8 @@ def vectorizeIngredients():
 	ingredients = list(set([ingTup[1] for ingTup in ingredientTuples]))
 #	for rid, ingredient, name in ingredientTuples:
 	db.close()
+
+
 
 def filterRecipeGraph(Gref, cutoff):
 	Gnew = Gref.copy()
@@ -312,7 +334,7 @@ def getCentroidRecipe(recipeids, ingrFreq):
 	maxRecipes = [rid for rid, score in sortedRecipes if score==maxScore]
 	return random.choice(maxRecipes)
 
-def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash, results):
+def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash, allrecipeids):
 	recordsHash = dll.loadRecordNameFromPickle()
 	cutoff = min(maxcutoff, len(recipeClusterList))
 	retval = []
@@ -327,7 +349,7 @@ def outputScreenJSON(recipeClusterList, maxcutoff, recipesHash, results):
 			links = cursor.fetchall()
 			db.close()
 			urlDict = dict([(rid, url) for rid, name, url in links])			
-			toprecipeimg = dlc.getTopRatedRecipe(recipes, results)[1]
+			toprecipeimg = dlc.getTopRatedRecipe(recipes, allrecipeids)[1]
 			#defaultimgurl = "static/imgunavailable.png"
 			ingrCounts = getIngredientFrequencies(recipes)
 			ingrCountsDict = dict(ingrCounts)

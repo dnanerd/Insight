@@ -46,7 +46,7 @@ def result():
     resultFile = "searchrecordids.txt"
     results = dls.searchRecipes(search, resultFile)
     total = len(results)
-    idGroups = dlc.findNameGroups(results)
+    idGroups = dlc.findNameGroups(results, recipeNameHash)
     idGroupsHash = {}
     for group in idGroups:
         idGroupsHash[group['label']] = group['ids']
@@ -54,14 +54,15 @@ def result():
 
 @app.route('/result2', methods=['GET', 'POST'])
 def result2():
-    results = request.form.getlist('links[]')
-    total = len(results)
-    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, results)
+    recipeids = request.form.getlist('links[]')
+    total = len(recipeids)
+    (searchG, searchGrecipes, searchGingredients) = dls.filterGraphByRecipeID(G, Grecipes, Gingredients, recipeids)
     #    clusters = dlg.getClusters(searchGrecipes)
-    clusters = dlg.getPartitions(searchGrecipes, results)
+    print ",".join(recipeids)
+    clusters = dlg.getPartitions(searchGrecipes, recipeids)
     cutoff = min(1000, len(clusters))
     #    search2jsonObject = [dlg.outputScreen2JSON(subCluster(cluster)) for cluster in clusters[0:cutoff]]
-    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff, recipesHash, results)
+    searchjsonObject = dlg.outputScreenJSON(clusters, cutoff, recipesHash, recipeids)
     #    searchjsonObject2 = {'object':'searchjsonObject'}
     searchjsonObject2 = [tup[2] for tup in searchjsonObject[0]['links']]
 
